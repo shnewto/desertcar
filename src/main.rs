@@ -3,11 +3,14 @@ use bevy_kira_audio::AudioPlugin;
 use bevy_rapier3d::prelude::*;
 use smooth_bevy_cameras::{controllers::orbit::OrbitCameraPlugin, LookTransformPlugin};
 
-
 mod assets;
-mod state;
-mod setup;
 mod buggy;
+mod lighting;
+mod scene;
+mod setup;
+mod state;
+mod physics;
+mod camera;
 
 fn main() {
     let clear_color_hex_string = "874f9c";
@@ -30,10 +33,10 @@ fn main() {
         .add_plugin(OrbitCameraPlugin::default())
         .add_plugin(AudioPlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
+        .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(GamePlugin)
         .run();
 }
-
 
 pub struct GamePlugin;
 

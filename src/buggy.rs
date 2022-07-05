@@ -9,8 +9,7 @@ impl Plugin for BuggyPlugin {
         app.add_system_set(
             SystemSet::on_update(GameState::Running)
                 .with_system(get_movement.label("get_movement"))
-                .with_system(apply_movement.after("get_movement").label("apply_movement"))
-                // .with_system(wrap_movement.after("apply_movement")),
+                .with_system(apply_movement.after("get_movement").label("apply_movement")), // .with_system(wrap_movement.after("apply_movement")),
         );
     }
 }
@@ -95,7 +94,7 @@ pub fn apply_movement(
     )>,
 ) {
     if let Ok((mut movements, buggy, global_transform, mut rb_forces, rb_velocities)) =
-    buggy_query.get_single_mut()
+        buggy_query.get_single_mut()
     {
         let mut forces = Vec3::new(0.0, 0.0, 0.0);
         let mut torques = Vec3::new(0.0, 0.0, 0.0);
@@ -121,7 +120,7 @@ pub fn apply_movement(
     }
 }
 
-pub fn wrap_movement(mut buggy_query: Query<(&Buggy, &mut Transform)>) {
+pub fn _wrap_movement(mut buggy_query: Query<(&Buggy, &mut Transform)>) {
     if let Ok((_buggy, mut transform)) = buggy_query.get_single_mut() {
         let max_terrain_coord = 50.0;
         let min_terrain_coord = -50.0;
