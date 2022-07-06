@@ -33,7 +33,7 @@ fn main() {
         .add_plugin(OrbitCameraPlugin::default())
         .add_plugin(AudioPlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
-        .add_plugin(RapierDebugRenderPlugin::default())
+        // .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(GamePlugin)
         .run();
 }

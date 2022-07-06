@@ -58,9 +58,9 @@ pub fn get_movement(mut query: Query<(&mut Movements, &mut Transform)>, keys: Re
         let push_factor;
 
         if keys.pressed(KeyCode::Space) {
-            push_factor = 45.0;
-        } else {
             push_factor = 30.0;
+        } else {
+            push_factor = 21.0;
         }
 
         let turn_factor = 20.0;
