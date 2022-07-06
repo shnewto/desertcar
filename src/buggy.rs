@@ -10,7 +10,7 @@ impl Plugin for BuggyPlugin {
             SystemSet::on_update(GameState::Running)
                 .with_system(get_movement.label("get_movement"))
                 .with_system(apply_movement.after("get_movement").label("apply_movement"))
-                .with_system(stop_roll.after("apply_movement"))
+                // .with_system(stop_roll.after("apply_movement"))
         );
     }
 }

@@ -2,13 +2,13 @@ use bevy::{
     asset::LoadState,
     gltf::{Gltf, GltfMesh},
     prelude::*,
-    render::{
-        mesh::{Indices, VertexAttributeValues},
-    },
+    render::mesh::{Indices, VertexAttributeValues},
 };
 use bevy_rapier3d::{
     math::Vect,
-    prelude::{ActiveEvents, Collider, ExternalForce, RigidBody, Velocity},
+    prelude::{
+        ActiveEvents, Collider, ExternalForce, RigidBody, Velocity,
+    },
 };
 
 use crate::{
@@ -25,18 +25,20 @@ pub fn setup(
     mut commands: Commands,
 ) {
     if let LoadState::Loaded = asset_server.get_load_state(&scene_assets.handle) {
-        if let Some(scenes_gltf) = assets_gltf.get(&scene_assets.handle) {            
+        if let Some(scenes_gltf) = assets_gltf.get(&scene_assets.handle) {
             commands
-                .spawn_bundle( TransformBundle::from(Transform::from_xyz(-150.0, 0.0, 0.0)))
+                .spawn_bundle(TransformBundle::from(Transform::from_xyz(-150.0, 0.5, 0.0)))
                 .insert(RigidBody::Dynamic)
                 // .insert(LockedAxes::ROTATION_LOCKED_X | LockedAxes::ROTATION_LOCKED_Z)
-                .insert(Collider::round_cuboid(3.0, 1.5, 1.0, 0.5))
+                .insert(Collider::round_cuboid(3.0, 0.5, 1.0, 0.5))
                 .insert(Velocity::zero())
                 .insert(ExternalForce::default())
                 .insert(Movements::default())
                 .insert(Buggy {
-                    thrust: Vec3::new(900.0, 500.0, 900.0),
-                    drag: Vec3::new(250.0, 500.0, 250.0),
+                    thrust: Vec3::new(200.0, 50.0, 200.0),
+                    drag: Vec3::new(50.0, 30.0, 50.0),
+                    // thrust: Vec3::new(900.0, 500.0, 900.0),
+                    // drag: Vec3::new(250.0, 500.0, 250.0),
                 })
                 .with_children(|parent| {
                     parent.spawn_scene(scenes_gltf.named_scenes["BUGGY"].clone());
