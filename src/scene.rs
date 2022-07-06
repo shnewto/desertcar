@@ -6,7 +6,7 @@ use bevy::{
 };
 use bevy_rapier3d::{
     math::Vect,
-    prelude::{ActiveEvents, Collider, ExternalForce, LockedAxes, RigidBody, Velocity},
+    prelude::{ActiveEvents, Collider, ExternalForce, RigidBody, Velocity},
 };
 
 use crate::{
@@ -33,8 +33,7 @@ pub fn setup(
                 .insert(ExternalForce::default())
                 .insert(Movements::default())
                 .insert(Buggy {
-                    // nothing special about these values, just played around until it felt like a ghost
-                    thrust: Vec3::new(600.0, 100.0, 600.0),
+                    thrust: Vec3::new(900.0, 500.0, 900.0),
                     drag: Vec3::new(250.0, 500.0, 250.0),
                 })
                 .with_children(|parent| {

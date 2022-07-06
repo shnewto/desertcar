@@ -9,7 +9,8 @@ impl Plugin for BuggyPlugin {
         app.add_system_set(
             SystemSet::on_update(GameState::Running)
                 .with_system(get_movement.label("get_movement"))
-                .with_system(apply_movement.after("get_movement").label("apply_movement")), // .with_system(wrap_movement.after("apply_movement")),
+                .with_system(apply_movement.after("get_movement").label("apply_movement"))
+                .with_system(stop_roll.after("apply_movement")),
         );
     }
 }
@@ -28,7 +29,6 @@ pub enum Movement {
     PushRight(f32),
     TurnLeft(f32),
     TurnRight(f32),
-    Lift(f32),
 }
 
 impl Movement {
@@ -38,7 +38,6 @@ impl Movement {
             Self::PushBackward(p) => Vec3::new(-*p, 0.0, 0.0),
             Self::PushLeft(p) => Vec3::new(0.0, 0.0, -*p),
             Self::PushRight(p) => Vec3::new(0.0, 0.0, *p),
-            Self::Lift(p) => Vec3::new(0.0, *p, 0.0),
             _ => Vec3::new(0.0, 0.0, 0.0),
         }
     }
@@ -54,9 +53,16 @@ impl Movement {
 #[derive(Default, Component, Debug)]
 pub struct Movements(pub Vec<Movement>);
 
-pub fn get_movement(mut query: Query<&mut Movements>, keys: Res<Input<KeyCode>>) {
-    if let Ok(mut movements) = query.get_single_mut() {
-        let push_factor = 30.0;
+pub fn get_movement(mut query: Query<(&mut Movements, &mut Transform)>, keys: Res<Input<KeyCode>>) {
+    if let Ok((mut movements, mut transform)) = query.get_single_mut() {
+        let push_factor;
+
+        if keys.pressed(KeyCode::Space) {
+            push_factor = 45.0;
+        } else {
+            push_factor = 30.0;
+        }
+
         let turn_factor = 20.0;
         if keys.pressed(KeyCode::W) || keys.pressed(KeyCode::Up) {
             movements.0.push(Movement::PushForward(push_factor))
@@ -78,8 +84,10 @@ pub fn get_movement(mut query: Query<&mut Movements>, keys: Res<Input<KeyCode>>)
             movements.0.push(Movement::TurnRight(turn_factor))
         }
 
-        if keys.pressed(KeyCode::Space) {
-            movements.0.push(Movement::Lift(90.0))
+        if keys.pressed(KeyCode::Key1) {
+            movements.0.clear();
+            transform.rotation = Quat::from_rotation_x(0.0);
+            transform.translation.y = 10.0;
         }
     }
 }
@@ -117,6 +125,21 @@ pub fn apply_movement(
         rb_forces.torque = torques;
 
         movements.0.clear();
+
+        println!()
+    }
+}
+
+pub fn stop_roll(mut buggy_query: Query<(&Buggy, &mut Transform)>) {
+    if let Ok((_buggy, mut transform)) = buggy_query.get_single_mut() {
+        let max = 15.0f32.to_radians();
+        let min = -15.0f32.to_radians();
+        transform.rotation = Quat::from_vec4(Vec4::new(
+            transform.rotation.x.clamp(min, max),
+            transform.rotation.y,
+            transform.rotation.z.clamp(min, max),
+            transform.rotation.w,
+        ))
     }
 }
 
