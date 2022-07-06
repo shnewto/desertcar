@@ -2,7 +2,9 @@ use bevy::{
     asset::LoadState,
     gltf::{Gltf, GltfMesh},
     prelude::*,
-    render::mesh::{Indices, VertexAttributeValues},
+    render::{
+        mesh::{Indices, VertexAttributeValues},
+    },
 };
 use bevy_rapier3d::{
     math::Vect,
@@ -23,9 +25,9 @@ pub fn setup(
     mut commands: Commands,
 ) {
     if let LoadState::Loaded = asset_server.get_load_state(&scene_assets.handle) {
-        if let Some(scenes_gltf) = assets_gltf.get(&scene_assets.handle) {
+        if let Some(scenes_gltf) = assets_gltf.get(&scene_assets.handle) {            
             commands
-                .spawn_bundle(TransformBundle::from(Transform::from_xyz(-45.0, 0.0, 0.0)))
+                .spawn_bundle( TransformBundle::from(Transform::from_xyz(-150.0, 0.0, 0.0)))
                 .insert(RigidBody::Dynamic)
                 // .insert(LockedAxes::ROTATION_LOCKED_X | LockedAxes::ROTATION_LOCKED_Z)
                 .insert(Collider::round_cuboid(3.0, 1.5, 1.0, 0.5))
@@ -39,7 +41,6 @@ pub fn setup(
                 .with_children(|parent| {
                     parent.spawn_scene(scenes_gltf.named_scenes["BUGGY"].clone());
                 });
-
             let terrain_mesh_handle = &scenes_gltf.named_meshes["TERRAIN"];
 
             let terrain_mesh: Option<&Mesh> = gltf_meshes

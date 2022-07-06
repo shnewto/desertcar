@@ -10,7 +10,7 @@ impl Plugin for BuggyPlugin {
             SystemSet::on_update(GameState::Running)
                 .with_system(get_movement.label("get_movement"))
                 .with_system(apply_movement.after("get_movement").label("apply_movement"))
-                .with_system(stop_roll.after("apply_movement")),
+                .with_system(stop_roll.after("apply_movement"))
         );
     }
 }
@@ -100,7 +100,9 @@ pub fn apply_movement(
         &mut ExternalForce,
         &Velocity,
     )>,
+
 ) {
+    
     if let Ok((mut movements, buggy, global_transform, mut rb_forces, rb_velocities)) =
         buggy_query.get_single_mut()
     {
@@ -125,10 +127,19 @@ pub fn apply_movement(
         rb_forces.torque = torques;
 
         movements.0.clear();
-
-        println!()
     }
 }
+
+pub fn _camera_follow(mut buggy_query: Query<(&Buggy, &Transform)>, mut camera_query: Query<(&Camera, &mut Transform)>) {
+    if let (Ok((_buggy, buggy_transform)), Ok((_camera, mut camera_transform))) = (buggy_query.get_single_mut(), camera_query.get_single_mut()) {
+        
+        camera_transform.translation.x = buggy_transform.translation.x - 10.0;
+        camera_transform.translation.y = buggy_transform.translation.y + 10.0;
+        camera_transform.translation.z = buggy_transform.translation.z;
+        let _ = camera_transform.looking_at(buggy_transform.translation, Vec3::Y);
+    }
+}
+
 
 pub fn stop_roll(mut buggy_query: Query<(&Buggy, &mut Transform)>) {
     if let Ok((_buggy, mut transform)) = buggy_query.get_single_mut() {

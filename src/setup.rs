@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::{lighting, scene, state::GameState, physics, camera};
+use crate::{camera, lighting, physics, scene, state::GameState};
 
 pub struct SetupPlugin;
 

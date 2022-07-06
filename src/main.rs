@@ -35,6 +35,7 @@ fn main() {
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
         // .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(GamePlugin)
+        // .add_plugin(ConfigCam)
         .run();
 }
 
