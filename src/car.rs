@@ -2,21 +2,20 @@ use crate::state::GameState;
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 
-pub struct BuggyPlugin;
+pub struct CarPlugin;
 
-impl Plugin for BuggyPlugin {
+impl Plugin for CarPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(
             SystemSet::on_update(GameState::Running)
                 .with_system(get_movement.label("get_movement"))
                 .with_system(apply_movement.after("get_movement").label("apply_movement"))
-                // .with_system(stop_roll.after("apply_movement"))
         );
     }
 }
 
 #[derive(Default, Component, Debug)]
-pub struct Buggy {
+pub struct Car {
     pub thrust: Vec3,
     pub drag: Vec3,
 }
@@ -58,12 +57,12 @@ pub fn get_movement(mut query: Query<(&mut Movements, &mut Transform)>, keys: Re
         let push_factor;
 
         if keys.pressed(KeyCode::Space) {
-            push_factor = 30.0;
+            push_factor = 19.0;
         } else {
-            push_factor = 21.0;
+            push_factor = 13.0;
         }
 
-        let turn_factor = 20.0;
+        let turn_factor = 10.0;
         if keys.pressed(KeyCode::W) || keys.pressed(KeyCode::Up) {
             movements.0.push(Movement::PushForward(push_factor))
         }
@@ -93,9 +92,9 @@ pub fn get_movement(mut query: Query<(&mut Movements, &mut Transform)>, keys: Re
 }
 
 pub fn apply_movement(
-    mut buggy_query: Query<(
+    mut car_query: Query<(
         &mut Movements,
-        &Buggy,
+        &Car,
         &GlobalTransform,
         &mut ExternalForce,
         &Velocity,
@@ -103,15 +102,15 @@ pub fn apply_movement(
 
 ) {
     
-    if let Ok((mut movements, buggy, global_transform, mut rb_forces, rb_velocities)) =
-        buggy_query.get_single_mut()
+    if let Ok((mut movements, car, global_transform, mut rb_forces, rb_velocities)) =
+        car_query.get_single_mut()
     {
         let mut forces = Vec3::new(0.0, 0.0, 0.0);
         let mut torques = Vec3::new(0.0, 0.0, 0.0);
 
         for movement in movements.0.iter() {
-            forces += movement.as_lin_vec() * buggy.thrust;
-            torques += movement.as_ang_vec() * buggy.thrust;
+            forces += movement.as_lin_vec() * car.thrust;
+            torques += movement.as_ang_vec() * car.thrust;
         }
 
         let local_to_global = global_transform.compute_matrix();
@@ -119,9 +118,9 @@ pub fn apply_movement(
         torques = local_to_global.transform_vector3(torques);
 
         let linvel: Vec3 = rb_velocities.linvel;
-        forces -= linvel * buggy.drag;
+        forces -= linvel * car.drag;
         let angvel: Vec3 = rb_velocities.angvel;
-        torques -= angvel * buggy.drag;
+        torques -= angvel * car.drag;
 
         rb_forces.force = forces;
         rb_forces.torque = torques;
@@ -130,41 +129,17 @@ pub fn apply_movement(
     }
 }
 
-pub fn _camera_follow(mut buggy_query: Query<(&Buggy, &Transform)>, mut camera_query: Query<(&Camera, &mut Transform)>) {
-    if let (Ok((_buggy, buggy_transform)), Ok((_camera, mut camera_transform))) = (buggy_query.get_single_mut(), camera_query.get_single_mut()) {
-        
-        camera_transform.translation.x = buggy_transform.translation.x - 10.0;
-        camera_transform.translation.y = buggy_transform.translation.y + 10.0;
-        camera_transform.translation.z = buggy_transform.translation.z;
-        let _ = camera_transform.looking_at(buggy_transform.translation, Vec3::Y);
-    }
-}
-
-
-pub fn stop_roll(mut buggy_query: Query<(&Buggy, &mut Transform)>) {
-    if let Ok((_buggy, mut transform)) = buggy_query.get_single_mut() {
-        let max = 15.0f32.to_radians();
-        let min = -15.0f32.to_radians();
-        transform.rotation = Quat::from_vec4(Vec4::new(
-            transform.rotation.x.clamp(min, max),
-            transform.rotation.y,
-            transform.rotation.z.clamp(min, max),
-            transform.rotation.w,
-        ))
-    }
-}
-
-pub fn _wrap_movement(mut buggy_query: Query<(&Buggy, &mut Transform)>) {
-    if let Ok((_buggy, mut transform)) = buggy_query.get_single_mut() {
-        let max_terrain_coord = 50.0;
-        let min_terrain_coord = -50.0;
+pub fn _wrap_movement(mut car_query: Query<(&Car, &mut Transform)>) {
+    if let Ok((_car, mut transform)) = car_query.get_single_mut() {
+        let max_desert_coord = 50.0;
+        let min_desert_coord = -50.0;
         let current_x = transform.translation.x;
         let current_z = transform.translation.z;
 
-        if current_x > max_terrain_coord
-            || current_z > max_terrain_coord
-            || current_x < min_terrain_coord
-            || current_z < min_terrain_coord
+        if current_x > max_desert_coord
+            || current_z > max_desert_coord
+            || current_x < min_desert_coord
+            || current_z < min_desert_coord
         {
             transform.translation = Vec3::new(0.0, 20.0, 0.0);
         }

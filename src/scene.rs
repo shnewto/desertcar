@@ -6,14 +6,12 @@ use bevy::{
 };
 use bevy_rapier3d::{
     math::Vect,
-    prelude::{
-        ActiveEvents, Collider, ExternalForce, RigidBody, Velocity,
-    },
+    prelude::{ActiveEvents, Collider, ExternalForce, RigidBody, Velocity},
 };
 
 use crate::{
     assets::SceneAssets,
-    buggy::{Buggy, Movements},
+    car::{Car, Movements},
 };
 
 pub fn setup(
@@ -30,33 +28,34 @@ pub fn setup(
                 .spawn_bundle(TransformBundle::from(Transform::from_xyz(-150.0, 0.5, 0.0)))
                 .insert(RigidBody::Dynamic)
                 // .insert(LockedAxes::ROTATION_LOCKED_X | LockedAxes::ROTATION_LOCKED_Z)
-                .insert(Collider::round_cuboid(3.0, 0.5, 1.0, 0.5))
+                .insert(Collider::round_cuboid(3.8, 1.4, 1.4, 0.3))
                 .insert(Velocity::zero())
                 .insert(ExternalForce::default())
                 .insert(Movements::default())
-                .insert(Buggy {
-                    thrust: Vec3::new(200.0, 50.0, 200.0),
-                    drag: Vec3::new(50.0, 30.0, 50.0),
-                    // thrust: Vec3::new(900.0, 500.0, 900.0),
-                    // drag: Vec3::new(250.0, 500.0, 250.0),
+                .insert(Car {
+                    // thrust: Vec3::new(200.0, 50.0, 200.0),
+                    // drag: Vec3::new(100.0, 30.0, 100.0),
+                    thrust: Vec3::new(2800.0, 1400.0, 1400.0),
+                    drag: Vec3::new(250.0, 250.0, 250.0),
                 })
                 .with_children(|parent| {
-                    parent.spawn_scene(scenes_gltf.named_scenes["BUGGY"].clone());
+                    parent.spawn_scene(scenes_gltf.named_scenes["CAR"].clone());
                 });
-            let terrain_mesh_handle = &scenes_gltf.named_meshes["TERRAIN"];
 
-            let terrain_mesh: Option<&Mesh> = gltf_meshes
-                .get(terrain_mesh_handle)
+            let desert_mesh_handle = &scenes_gltf.named_meshes["DESERT"];
+
+            let desert_mesh: Option<&Mesh> = gltf_meshes
+                .get(desert_mesh_handle)
                 .and_then(|gltf_mesh| gltf_mesh.primitives.get(0))
-                .and_then(|terrain_primitive| meshes.get(&terrain_primitive.mesh));
+                .and_then(|desert_primitive| meshes.get(&desert_primitive.mesh));
 
             let attribute_positions =
-                terrain_mesh.and_then(|m| m.attribute(Mesh::ATTRIBUTE_POSITION));
+                desert_mesh.and_then(|m| m.attribute(Mesh::ATTRIBUTE_POSITION));
 
             if let (
                 Some(VertexAttributeValues::Float32x3(vertex_values)),
                 Some(Indices::U32(index_values)),
-            ) = (attribute_positions, terrain_mesh.and_then(|m| m.indices()))
+            ) = (attribute_positions, desert_mesh.and_then(|m| m.indices()))
             {
                 let vertices: Vec<Vect> = vertex_values
                     .iter()
@@ -73,7 +72,7 @@ pub fn setup(
                     .insert(Collider::trimesh(vertices, indices))
                     .insert(ActiveEvents::COLLISION_EVENTS)
                     .with_children(|parent| {
-                        parent.spawn_scene(scenes_gltf.named_scenes["TERRAIN"].clone());
+                        parent.spawn_scene(scenes_gltf.named_scenes["DESERT"].clone());
                     });
             }
         }

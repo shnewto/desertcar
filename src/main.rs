@@ -4,13 +4,13 @@ use bevy_rapier3d::prelude::*;
 use smooth_bevy_cameras::{controllers::orbit::OrbitCameraPlugin, LookTransformPlugin};
 
 mod assets;
-mod buggy;
+mod car;
+mod camera;
 mod lighting;
+mod physics;
 mod scene;
 mod setup;
 mod state;
-mod physics;
-mod camera;
 
 fn main() {
     let clear_color_hex_string = "874f9c";
@@ -19,7 +19,7 @@ fn main() {
         .insert_resource(WindowDescriptor {
             width: 1280.,
             height: 720.,
-            title: "buggy".to_string(),
+            title: "car-in-desert".to_string(),
             present_mode: PresentMode::Fifo,
             ..default()
         })
@@ -46,6 +46,6 @@ impl Plugin for GamePlugin {
         app.add_state(state::GameState::LoadingAssets)
             .add_plugin(assets::AssetsPlugin)
             .add_plugin(setup::SetupPlugin)
-            .add_plugin(buggy::BuggyPlugin);
+            .add_plugin(car::CarPlugin);
     }
 }
