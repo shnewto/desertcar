@@ -10,6 +10,10 @@ use bevy_rapier3d::{
 };
 
 use crate::{assets::SceneAssets, car::Car, movement::Movements};
+use smooth_bevy_cameras::{
+    controllers::orbit::{OrbitCameraBundle, OrbitCameraController},
+    LookTransform, LookTransformBundle, Smoother,
+};
 
 pub fn setup(
     asset_server: Res<AssetServer>,
@@ -21,22 +25,31 @@ pub fn setup(
 ) {
     if let LoadState::Loaded = asset_server.get_load_state(&scene_assets.handle) {
         if let Some(scenes_gltf) = assets_gltf.get(&scene_assets.handle) {
+            let initial_transform = Transform::from_xyz(-150.0, 0.5, 0.0);
+
             commands
-                .spawn_bundle(TransformBundle::from(Transform::from_xyz(-150.0, 0.5, 0.0)))
+                .spawn_bundle(TransformBundle::from(initial_transform))
                 .insert(RigidBody::Dynamic)
-                // .insert(LockedAxes::ROTATION_LOCKED_X | LockedAxes::ROTATION_LOCKED_Z)
                 .insert(Collider::round_cuboid(3.8, 1.4, 1.4, 0.3))
                 .insert(Velocity::zero())
                 .insert(ExternalForce::default())
                 .insert(Movements::default())
                 .insert(Car {
-                    // thrust: Vec3::new(200.0, 50.0, 200.0),
-                    // drag: Vec3::new(100.0, 30.0, 100.0),
                     thrust: Vec3::new(2800.0, 1400.0, 1400.0),
                     drag: Vec3::new(250.0, 250.0, 250.0),
+                    last_translation: initial_transform.translation,
+                    last_rotation: initial_transform.rotation,
                 })
                 .with_children(|parent| {
                     parent.spawn_scene(scenes_gltf.named_scenes["CAR"].clone());
+                    // let eye = Vec3::new(-180.0, 10.0, 0.0);
+                    // let target = Vec3::new(150.0, 1.0, 0.0);
+                    // parent
+                    //     .spawn_bundle(LookTransformBundle {
+                    //         transform: LookTransform { eye, target },
+                    //         smoother: Smoother::new(0.9),
+                    //     })
+                    //     .insert_bundle(PerspectiveCameraBundle::default());
                 });
 
             let desert_mesh_handle = &scenes_gltf.named_meshes["DESERT"];

@@ -1,6 +1,7 @@
 use bevy::input::gamepad::GamepadButton;
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
+use smooth_bevy_cameras::LookTransform;
 
 use crate::car::Car;
 
@@ -170,15 +171,19 @@ fn _gamepad_movement(
 pub fn apply_movement(
     mut car_query: Query<(
         &mut Movements,
-        &Car,
+        &mut Car,
+        &Transform,
         &GlobalTransform,
         &mut ExternalForce,
         &Velocity,
     )>,
 ) {
-    if let Ok((mut movements, car, global_transform, mut rb_forces, rb_velocities)) =
+    if let Ok((mut movements, mut car, transform, global_transform, mut rb_forces, rb_velocities)) =
         car_query.get_single_mut()
     {
+        car.last_translation = global_transform.translation;
+        car.last_rotation = global_transform.rotation;
+        
         let mut forces = Vec3::new(0.0, 0.0, 0.0);
         let mut torques = Vec3::new(0.0, 0.0, 0.0);
 
