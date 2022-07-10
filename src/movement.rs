@@ -1,3 +1,4 @@
+use bevy::input::gamepad::GamepadButton;
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 
@@ -7,8 +8,6 @@ use crate::car::Car;
 pub enum Movement {
     PushForward(f32),
     PushBackward(f32),
-    PushLeft(f32),
-    PushRight(f32),
     TurnLeft(f32),
     TurnRight(f32),
 }
@@ -18,8 +17,6 @@ impl Movement {
         match self {
             Self::PushForward(p) => Vec3::new(*p, 0.0, 0.0),
             Self::PushBackward(p) => Vec3::new(-*p, 0.0, 0.0),
-            Self::PushLeft(p) => Vec3::new(0.0, 0.0, -*p),
-            Self::PushRight(p) => Vec3::new(0.0, 0.0, *p),
             _ => Vec3::new(0.0, 0.0, 0.0),
         }
     }
@@ -35,7 +32,28 @@ impl Movement {
 #[derive(Default, Component, Debug)]
 pub struct Movements(pub Vec<Movement>);
 
-pub fn get_movement(mut query: Query<(&mut Movements, &mut Transform)>, keys: Res<Input<KeyCode>>) {
+
+pub fn get_movement(
+    query: Query<(&mut Movements, &mut Transform)>,
+    keys: Res<Input<KeyCode>>,
+    _gamepads: Res<Gamepads>,
+    _button_inputs: Res<Input<GamepadButton>>,
+    _button_axes: Res<Axis<GamepadButton>>,
+    _axes: Res<Axis<GamepadAxis>>,
+) {
+    // if let Some(gamepad) = gamepads.iter().next() {
+    //         gamepad_movement(query, *gamepad, button_inputs, button_axes, axes)
+    // } 
+
+    keyboard_movement(query, keys)
+}
+
+
+fn keyboard_movement(
+    mut query: Query<(&mut Movements, &mut Transform)>,
+    keys: Res<Input<KeyCode>>,
+    
+) {
     if let Ok((mut movements, mut transform)) = query.get_single_mut() {
         let push_factor;
 
@@ -46,23 +64,17 @@ pub fn get_movement(mut query: Query<(&mut Movements, &mut Transform)>, keys: Re
         }
 
         let turn_factor = 10.0;
+
         if keys.pressed(KeyCode::W) || keys.pressed(KeyCode::Up) {
             movements.0.push(Movement::PushForward(push_factor))
         }
         if keys.pressed(KeyCode::S) || keys.pressed(KeyCode::Down) {
             movements.0.push(Movement::PushBackward(push_factor))
         }
-        if keys.pressed(KeyCode::A) {
-            movements.0.push(Movement::PushLeft(push_factor))
-        }
-        if keys.pressed(KeyCode::D) {
-            movements.0.push(Movement::PushRight(push_factor))
-        }
-
-        if keys.pressed(KeyCode::Left) {
+        if keys.pressed(KeyCode::A) || keys.pressed(KeyCode::Left) {
             movements.0.push(Movement::TurnLeft(turn_factor))
         }
-        if keys.pressed(KeyCode::Right) {
+        if keys.pressed(KeyCode::D) || keys.pressed(KeyCode::Right) {
             movements.0.push(Movement::TurnRight(turn_factor))
         }
 
@@ -72,6 +84,87 @@ pub fn get_movement(mut query: Query<(&mut Movements, &mut Transform)>, keys: Re
             transform.translation.y = 10.0;
         }
     }
+}
+
+fn _gamepad_movement(
+    mut query: Query<(&mut Movements, &mut Transform)>,
+    gamepad: Gamepad,
+    button_inputs: Res<Input<GamepadButton>>,
+    button_axes: Res<Axis<GamepadButton>>,
+    axes: Res<Axis<GamepadAxis>>,
+) {
+        if let Ok((mut movements, mut transform)) = query.get_single_mut() {
+
+            let push_factor;
+            let turn_factor = 10.0;
+
+            let right_trigger = button_axes
+                .get(GamepadButton(gamepad,GamepadButtonType::RightTrigger2,))
+                .unwrap();
+            if right_trigger.abs() > 0.01 {
+                push_factor = 19.0;
+            } else {
+                push_factor = 13.0;
+            }
+
+            
+            let axis_rx = GamepadAxis(gamepad, GamepadAxisType::RightStickX);
+            let axis_ry = GamepadAxis(gamepad, GamepadAxisType::RightStickY);
+        
+            if let (Some(x), Some(y)) = (axes.get(axis_rx), axes.get(axis_ry)) {
+                // combine X and Y into one vector
+                let stick_pos = Vec2::new(x, y);
+        
+                // Example: check if the stick is pushed up
+                if stick_pos.length() > 0.9 && stick_pos.y > 0.5 {
+                    movements.0.push(Movement::PushForward(push_factor * stick_pos.y.abs()))
+                } 
+                
+                if stick_pos.length() > 0.9 && stick_pos.y < 0.5 {
+                    movements.0.push(Movement::PushBackward(push_factor * stick_pos.y.abs()))
+                }
+
+                
+                if stick_pos.length() > 0.9 && stick_pos.x < 0.5 {
+                    movements.0.push(Movement::TurnRight(turn_factor * stick_pos.x.abs()))
+                }
+                
+                if stick_pos.length() > 0.9 && stick_pos.x > 0.5 {
+                    movements.0.push(Movement::TurnLeft(turn_factor * stick_pos.x.abs()))
+                }
+            }
+            
+            let axis_lx = GamepadAxis(gamepad, GamepadAxisType::LeftStickX);
+            let axis_ly = GamepadAxis(gamepad, GamepadAxisType::LeftStickY);
+        
+            if let (Some(x), Some(y)) = (axes.get(axis_lx), axes.get(axis_ly)) {
+                let stick_pos = Vec2::new(x, y);
+        
+                // Example: check if the stick is pushed up
+                if stick_pos.length() > 0.9 && stick_pos.y > 0.5 {
+                    movements.0.push(Movement::PushForward(push_factor * stick_pos.y.abs()))
+                } 
+                
+                if stick_pos.length() > 0.9 && stick_pos.y < 0.5 {
+                    movements.0.push(Movement::PushBackward(push_factor * stick_pos.y.abs()))
+                }
+
+                
+                if stick_pos.length() > 0.9 && stick_pos.x < 0.5 {
+                    movements.0.push(Movement::TurnRight(turn_factor * stick_pos.x.abs()))
+                }
+                
+                if stick_pos.length() > 0.9 && stick_pos.x > 0.5 {
+                    movements.0.push(Movement::TurnLeft(turn_factor * stick_pos.x.abs()))
+                }
+            }
+
+            if button_inputs.just_pressed(GamepadButton(gamepad, GamepadButtonType::North)) {
+                movements.0.clear();
+                transform.rotation = Quat::from_rotation_x(0.0);
+                transform.translation.y = 10.0;
+            }
+        }
 }
 
 pub fn apply_movement(
@@ -107,22 +200,5 @@ pub fn apply_movement(
         rb_forces.torque = torques;
 
         movements.0.clear();
-    }
-}
-
-pub fn _wrap_movement(mut car_query: Query<(&Car, &mut Transform)>) {
-    if let Ok((_car, mut transform)) = car_query.get_single_mut() {
-        let max_desert_coord = 50.0;
-        let min_desert_coord = -50.0;
-        let current_x = transform.translation.x;
-        let current_z = transform.translation.z;
-
-        if current_x > max_desert_coord
-            || current_z > max_desert_coord
-            || current_x < min_desert_coord
-            || current_z < min_desert_coord
-        {
-            transform.translation = Vec3::new(0.0, 20.0, 0.0);
-        }
     }
 }

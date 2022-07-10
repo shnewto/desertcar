@@ -4,12 +4,12 @@ use bevy::prelude::*;
 
 pub struct CarPlugin;
 
-impl Plugin for CarPlugin {
+impl Plugin for CarPlugin { 
     fn build(&self, app: &mut App) {
         app.add_system_set(
             SystemSet::on_update(GameState::Running)
-                .with_system(get_movement.label("get_movement"))
-                .with_system(apply_movement.after("get_movement").label("apply_movement"))
+            .with_system(get_movement.label("keys").label("movemet"))
+            .with_system(apply_movement.after("movemet").label("apply_movement"))
         );
     }
 }

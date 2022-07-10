@@ -7,10 +7,7 @@ edition = "2021"
 
 [features]
 default = [
-    "bevy/bevy_winit",
-    "bevy/bevy_gltf",
-    "bevy/render",
-    "bevy_kira_audio/ogg"
+    "bevy_kira_audio/ogg",
 ]
 
 dev = [
@@ -22,4 +19,4 @@ smooth-bevy-cameras = "0.4.0"
 bevy_config_cam = { path = "../bevy_config_cam", version = "0.3.0" }
 bevy_rapier3d = "0.13.0"
 bevy_kira_audio = "0.10.0"
-bevy = { version = "0.7", default-features = false }
+bevy = { version = "0.7" }
