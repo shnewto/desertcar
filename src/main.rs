@@ -11,7 +11,8 @@ mod physics;
 mod scene;
 mod setup;
 mod state;
-
+mod movement;
+ 
 fn main() {
     let clear_color_hex_string = "874f9c";
     App::new()

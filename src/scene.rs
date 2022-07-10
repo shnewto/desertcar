@@ -9,10 +9,7 @@ use bevy_rapier3d::{
     prelude::{ActiveEvents, Collider, ExternalForce, RigidBody, Velocity},
 };
 
-use crate::{
-    assets::SceneAssets,
-    car::{Car, Movements},
-};
+use crate::{assets::SceneAssets, car::Car, movement::Movements};
 
 pub fn setup(
     asset_server: Res<AssetServer>,
