@@ -1,18 +1,18 @@
 use bevy::{prelude::*, window::PresentMode};
 use bevy_kira_audio::AudioPlugin;
 use bevy_rapier3d::prelude::*;
-use smooth_bevy_cameras::{controllers::{orbit::OrbitCameraPlugin, fps::FpsCameraPlugin}, LookTransformPlugin};
+use smooth_bevy_cameras::LookTransformPlugin;
 
 mod assets;
-mod car;
 mod camera;
+mod car;
 mod lighting;
+mod movement;
 mod physics;
 mod scene;
 mod setup;
 mod state;
-mod movement;
- 
+
 fn main() {
     let clear_color_hex_string = "874f9c";
     App::new()
@@ -31,14 +31,10 @@ fn main() {
         ))
         .add_plugins(DefaultPlugins)
         .add_plugin(LookTransformPlugin)
-        // .add_plugin(OrbitCameraPlugin::default())
-        // .add_plugin(FpsCameraPlugin::default())
-        .add_plugin(LookTransformPlugin)
         .add_plugin(AudioPlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(GamePlugin)
-        // .add_plugin(ConfigCam)
         .run();
 }
 

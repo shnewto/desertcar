@@ -10,10 +10,6 @@ use bevy_rapier3d::{
 };
 
 use crate::{assets::SceneAssets, car::Car, movement::Movements};
-use smooth_bevy_cameras::{
-    controllers::orbit::{OrbitCameraBundle, OrbitCameraController},
-    LookTransform, LookTransformBundle, Smoother,
-};
 
 pub fn setup(
     asset_server: Res<AssetServer>,
@@ -37,13 +33,11 @@ pub fn setup(
                 .insert(Car {
                     thrust: Vec3::new(2800.0, 1400.0, 1400.0),
                     drag: Vec3::new(250.0, 250.0, 250.0),
-                    last_translation: initial_transform.translation,
-                    last_rotation: initial_transform.rotation,
                 })
                 .with_children(|parent| {
                     parent.spawn_scene(scenes_gltf.named_scenes["CAR"].clone());
-                    // let eye = Vec3::new(-180.0, 10.0, 0.0);
-                    // let target = Vec3::new(150.0, 1.0, 0.0);
+                    // let eye = Vec3::new(-40.0, 10.5, 0.0);
+                    // let target = Vec3::new(40.0, -10.5, 0.0);
                     // parent
                     //     .spawn_bundle(LookTransformBundle {
                     //         transform: LookTransform { eye, target },
