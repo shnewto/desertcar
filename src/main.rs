@@ -12,9 +12,10 @@ mod physics;
 mod scene;
 mod setup;
 mod state;
+mod input; 
 
 fn main() {
-    let clear_color_hex_string = "874f9c";
+    let _clear_color_hex_string = "874f9c";
     App::new()
         .insert_resource(Msaa::default())
         .insert_resource(WindowDescriptor {
@@ -25,15 +26,16 @@ fn main() {
             ..default()
         })
         .insert_resource(ClearColor(
-            Color::hex(clear_color_hex_string).unwrap_or_else(|_| {
-                panic!("couldn't make hex color from {}", clear_color_hex_string)
-            }),
+            // Color::hex(clear_color_hex_string).unwrap_or_else(|_| {
+            //     panic!("couldn't make hex color from {}", clear_color_hex_string)
+            // }),
+            Color::PURPLE,
         ))
         .add_plugins(DefaultPlugins)
         .add_plugin(LookTransformPlugin)
         .add_plugin(AudioPlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())
-        .add_plugin(RapierDebugRenderPlugin::default())
+        // .add_plugin(RapierDebugRenderPlugin::default())
         .add_plugin(GamePlugin)
         .run();
 }
