@@ -1,6 +1,6 @@
-# car-in-desert
+# desert-car
 
-drive a car around, in a desert
+a car, in a desert
 
 ## run the game
 
@@ -10,6 +10,16 @@ cargo run
 
 ## drive
 
+### keyboard
+
 movement: ← ↑ ↓ →
 speed boost: space bar
-camera orbit: a d
+camera orbit: w a s d
+reset position: 1
+
+### gamepad
+
+throttle: right lower trigger
+movement: right stick ← ↓ →
+boost: left lower trigger
+camera orbit: left stick ← ↑ ↓ →

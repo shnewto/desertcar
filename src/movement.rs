@@ -66,3 +66,24 @@ pub fn apply_movement(
         car_movements.0.clear();
     }
 }
+
+
+pub fn _wrap_movement(mut form_query: Query<(&Car, &mut Transform)>) {
+    // if let Ok((_form, mut transform)) = form_query.get_single_mut() {
+    //     let max_terrain_coord = 50.0;
+    //     let min_terrain_coord = -50.0;
+    //     let current_x = transform.translation.x;
+    //     let current_z = transform.translation.z;
+
+    //     // starting coords
+    //     // -40.0, 20.0, 0.0
+
+    //     if current_x > max_terrain_coord
+    //         || current_z > max_terrain_coord
+    //         || current_x < min_terrain_coord
+    //         || current_z < min_terrain_coord
+    //     {
+    //         transform.translation = Vec3::new(0.0, 20.0, 0.0);
+    //     }
+    // }
+}

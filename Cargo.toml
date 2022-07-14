@@ -1,5 +1,5 @@
 [package]
-name = "car-in-desert"
+name = "desert-car"
 version = "0.1.0"
 publish = false
 authors = ["shnewto<github@shnewto.com>"]

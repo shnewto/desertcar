@@ -93,20 +93,31 @@ pub fn get_car_movement(
                 .push(CarMovement::TurnRight(keyboard_turn_factor))
         }
 
-        // eprintln!("x: {:#?}", transform.rotation.x);
-        // eprintln!("y: {:#?}", transform.rotation.y);
-        // eprintln!("z: {:#?}", transform.rotation.z);
-        // eprintln!("w: {:#?}", transform.rotation.w);
+        // eprintln!("x: {:#?}", transform.rotation.x.to_degrees());
+        // eprintln!("y: {:#?}", transform.rotation.y.to_degrees());
+        // eprintln!("z: {:#?}", transform.rotation.z.to_degrees());
+        // eprintln!("w: {:#?}", transform.rotation.w.to_degrees());
+
+        // let min_pitch_roll = -30.0f32.to_radians();
+        // let max_pitch_roll = 30.0f32.to_radians();
+        // let clamped_rotation_x = clamp(transform.rotation.x, min_pitch_roll, max_pitch_roll);
+        // let clamped_rotation_z = clamp(transform.rotation.z, min_pitch_roll, max_pitch_roll);
+        // transform.rotation = Quat::from_vec4(Vec4::new(
+        //     clamped_rotation_x,
+        //     transform.rotation.y,
+        //     clamped_rotation_z,
+        //     transform.rotation.w,
+        // ));
 
         if keys.pressed(KeyCode::Key1) {
             let _x = transform.rotation.x;
             let _z = transform.rotation.z;
-            
+
             let y = transform.rotation.y;
             let w = transform.rotation.w;
             transform.rotation = Quat::from_vec4(Vec4::new(0.0, y, 0.0, w));
             // transform.rotation = Quat::from_rotation_x(0.0);
-            transform.translation.y = 10.0;
+            // transform.translation.y = 20.0;
         }
     }
 }

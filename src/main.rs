@@ -21,7 +21,7 @@ fn main() {
         .insert_resource(WindowDescriptor {
             width: 1280.,
             height: 720.,
-            title: "car-in-desert".to_string(),
+            title: "desert-car".to_string(),
             present_mode: PresentMode::Fifo,
             ..default()
         })
@@ -29,7 +29,7 @@ fn main() {
             // Color::hex(clear_color_hex_string).unwrap_or_else(|_| {
             //     panic!("couldn't make hex color from {}", clear_color_hex_string)
             // }),
-            Color::PURPLE,
+            Color::BLACK,
         ))
         .add_plugins(DefaultPlugins)
         .add_plugin(LookTransformPlugin)

@@ -2,8 +2,8 @@ use bevy::prelude::*;
 
 pub fn setup(mut commands: Commands) {
     commands.insert_resource(AmbientLight {
-        color: Color::ANTIQUE_WHITE,
-        brightness: 1.0,
+        color: Color::ORANGE_RED,
+        brightness: 3.0,
     });
     let point_light_intensity = 120000.0;
     let point_light_range = 500.;

@@ -21,29 +21,21 @@ pub fn setup(
 ) {
     if let LoadState::Loaded = asset_server.get_load_state(&scene_assets.handle) {
         if let Some(scenes_gltf) = assets_gltf.get(&scene_assets.handle) {
-            let initial_transform = Transform::from_xyz(-150.0, 1.5, 0.0);
+            let initial_transform = Transform::from_xyz(-700.0, 1.0, 0.0);
 
             commands
                 .spawn_bundle(TransformBundle::from(initial_transform))
                 .insert(RigidBody::Dynamic)
-                .insert(Collider::round_cuboid(3.8, 1.4, 1.4, 0.3))
+                .insert(Collider::round_cuboid(3.8, 1.4, 2.2, 0.3))
                 .insert(Velocity::zero())
                 .insert(ExternalForce::default())
                 .insert(CarMovements::default())
-                .insert(Car {
+                .insert(Car {                   
                     thrust: Vec3::new(2800.0, 1400.0, 1400.0),
-                    drag: Vec3::new(250.0, 250.0, 250.0),
+                    drag: Vec3::new(100.0, 50.0, 100.0),
                 })
                 .with_children(|parent| {
                     parent.spawn_scene(scenes_gltf.named_scenes["CAR"].clone());
-                    // let eye = Vec3::new(-40.0, 10.5, 0.0);
-                    // let target = Vec3::new(40.0, -10.5, 0.0);
-                    // parent
-                    //     .spawn_bundle(LookTransformBundle {
-                    //         transform: LookTransform { eye, target },
-                    //         smoother: Smoother::new(0.9),
-                    //     })
-                    //     .insert_bundle(PerspectiveCameraBundle::default());
                 });
 
             let desert_mesh_handle = &scenes_gltf.named_meshes["DESERT"];

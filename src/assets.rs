@@ -17,7 +17,7 @@ pub struct SceneAssets {
 }
 
 fn load(asset_server: ResMut<AssetServer>, mut scene_assets: ResMut<SceneAssets>) {
-    scene_assets.handle = asset_server.load("gltf/car-in-desert.gltf");
+    scene_assets.handle = asset_server.load("gltf/desert-car.gltf");
 }
 
 fn check(
