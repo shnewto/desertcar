@@ -34,6 +34,86 @@
                     "intensity" : 1000,
                     "type" : "point",
                     "name" : "Point.004"
+                },
+                {
+                    "color" : [
+                        1,
+                        1,
+                        1
+                    ],
+                    "intensity" : 10000,
+                    "type" : "point",
+                    "name" : "Point"
+                },
+                {
+                    "color" : [
+                        1,
+                        1,
+                        1
+                    ],
+                    "intensity" : 10000,
+                    "type" : "point",
+                    "name" : "Point.001"
+                },
+                {
+                    "color" : [
+                        1,
+                        1,
+                        1
+                    ],
+                    "intensity" : 10000,
+                    "type" : "point",
+                    "name" : "Point.002"
+                },
+                {
+                    "color" : [
+                        1,
+                        1,
+                        1
+                    ],
+                    "intensity" : 10000,
+                    "type" : "point",
+                    "name" : "Point.005"
+                },
+                {
+                    "color" : [
+                        1,
+                        1,
+                        1
+                    ],
+                    "intensity" : 10000,
+                    "type" : "point",
+                    "name" : "Point.006"
+                },
+                {
+                    "color" : [
+                        1,
+                        1,
+                        1
+                    ],
+                    "intensity" : 10000,
+                    "type" : "point",
+                    "name" : "Point.007"
+                },
+                {
+                    "color" : [
+                        1,
+                        1,
+                        1
+                    ],
+                    "intensity" : 10000,
+                    "type" : "point",
+                    "name" : "Point.008"
+                },
+                {
+                    "color" : [
+                        1,
+                        1,
+                        1
+                    ],
+                    "intensity" : 10000,
+                    "type" : "point",
+                    "name" : "Point.009"
                 }
             ]
         }
@@ -49,7 +129,15 @@
         {
             "name" : "DESERT",
             "nodes" : [
-                3
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11
             ]
         }
     ],
@@ -129,6 +217,158 @@
         {
             "mesh" : 1,
             "name" : "DESERT"
+        },
+        {
+            "extensions" : {
+                "KHR_lights_punctual" : {
+                    "light" : 2
+                }
+            },
+            "name" : "Point",
+            "rotation" : [
+                -0.7071068286895752,
+                0,
+                0,
+                0.7071068286895752
+            ],
+            "translation" : [
+                -583.90380859375,
+                100,
+                -609.2909545898438
+            ]
+        },
+        {
+            "extensions" : {
+                "KHR_lights_punctual" : {
+                    "light" : 3
+                }
+            },
+            "name" : "Point.001",
+            "rotation" : [
+                -0.7071068286895752,
+                0,
+                0,
+                0.7071068286895752
+            ],
+            "translation" : [
+                -50.77423095703125,
+                100,
+                -653.7184448242188
+            ]
+        },
+        {
+            "extensions" : {
+                "KHR_lights_punctual" : {
+                    "light" : 4
+                }
+            },
+            "name" : "Point.002",
+            "rotation" : [
+                -0.7071068286895752,
+                0,
+                0,
+                0.7071068286895752
+            ],
+            "translation" : [
+                685.4523315429688,
+                100,
+                -437.92791748046875
+            ]
+        },
+        {
+            "extensions" : {
+                "KHR_lights_punctual" : {
+                    "light" : 5
+                }
+            },
+            "name" : "Point.005",
+            "rotation" : [
+                -0.7071068286895752,
+                0,
+                0,
+                0.7071068286895752
+            ],
+            "translation" : [
+                310.9923095703125,
+                100,
+                -6.103515625e-05
+            ]
+        },
+        {
+            "extensions" : {
+                "KHR_lights_punctual" : {
+                    "light" : 6
+                }
+            },
+            "name" : "Point.006",
+            "rotation" : [
+                -0.7071068286895752,
+                0,
+                0,
+                0.7071068286895752
+            ],
+            "translation" : [
+                -476.0084228515625,
+                100,
+                -158.66958618164062
+            ]
+        },
+        {
+            "extensions" : {
+                "KHR_lights_punctual" : {
+                    "light" : 7
+                }
+            },
+            "name" : "Point.007",
+            "rotation" : [
+                -0.7071068286895752,
+                0,
+                0,
+                0.7071068286895752
+            ],
+            "translation" : [
+                -609.2908325195312,
+                100,
+                291.95184326171875
+            ]
+        },
+        {
+            "extensions" : {
+                "KHR_lights_punctual" : {
+                    "light" : 8
+                }
+            },
+            "name" : "Point.008",
+            "rotation" : [
+                -0.7071068286895752,
+                0,
+                0,
+                0.7071068286895752
+            ],
+            "translation" : [
+                25.38720703125,
+                100,
+                647.37158203125
+            ]
+        },
+        {
+            "extensions" : {
+                "KHR_lights_punctual" : {
+                    "light" : 9
+                }
+            },
+            "name" : "Point.009",
+            "rotation" : [
+                -0.7071068286895752,
+                0,
+                0,
+                0.7071068286895752
+            ],
+            "translation" : [
+                710.8394775390625,
+                100,
+                748.9200439453125
+            ]
         }
     ],
     "materials" : [
@@ -212,9 +452,9 @@
             "extensions" : {
                 "KHR_materials_specular" : {
                     "specularColorFactor" : [
-                        1.5525674200420936,
-                        1.0894350037427323,
-                        0.6624757896243152
+                        1.7106584448163167,
+                        1.0047749530312646,
+                        0.6961630195704509
                     ]
                 },
                 "KHR_materials_ior" : {
@@ -224,9 +464,9 @@
             "name" : "DESERT",
             "pbrMetallicRoughness" : {
                 "baseColorFactor" : [
-                    0.2666727602481842,
-                    0.1379854679107666,
-                    0.019349364563822746,
+                    0.26667270064353943,
+                    0.09827347844839096,
+                    0.024649417027831078,
                     1
                 ],
                 "metallicFactor" : 0
