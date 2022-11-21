@@ -56,11 +56,13 @@ pub fn setup(
             {
                 let vertices: Vec<Vect> = vertex_values
                     .iter()
+                    .rev()
                     .map(|v| Vec3::new(v[0], v[1], v[2]))
                     .collect();
 
                 let indices: Vec<[u32; 3]> = index_values
                     .chunks(3)
+                    .rev()
                     .map(|chunk| [chunk[0], chunk[1], chunk[2]])
                     .collect();
 
