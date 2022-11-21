@@ -68,7 +68,7 @@ pub fn apply_movement(
 }
 
 
-pub fn _wrap_movement(mut form_query: Query<(&Car, &mut Transform)>) {
+pub fn _wrap_movement(mut _form_query: Query<(&Car, &mut Transform)>) {
     // if let Ok((_form, mut transform)) = form_query.get_single_mut() {
     //     let max_terrain_coord = 50.0;
     //     let min_terrain_coord = -50.0;

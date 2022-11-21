@@ -9,14 +9,14 @@ use bevy_rapier3d::{
     prelude::{ActiveEvents, Collider, ExternalForce, RigidBody, Velocity},
 };
 
-use crate::{assets::SceneAssets, car::Car, movement::CarMovements};
+use crate::{assets::SceneResource, car::Car, movement::CarMovements};
 
 pub fn setup(
     asset_server: Res<AssetServer>,
     assets_gltf: Res<Assets<Gltf>>,
     gltf_meshes: Res<Assets<GltfMesh>>,
     meshes: Res<Assets<Mesh>>,
-    scene_assets: ResMut<SceneAssets>,
+    scene_assets: ResMut<SceneResource>,
     mut commands: Commands,
 ) {
     if let LoadState::Loaded = asset_server.get_load_state(&scene_assets.handle) {
@@ -24,7 +24,11 @@ pub fn setup(
             let initial_transform = Transform::from_xyz(-700.0, 1.0, 0.0);
 
             commands
-                .spawn_bundle(TransformBundle::from(initial_transform))
+                .spawn(SceneBundle {
+                    scene: scenes_gltf.named_scenes["CAR"].clone(),
+                    ..default()
+                })
+                .insert(TransformBundle::from(initial_transform))
                 .insert(RigidBody::Dynamic)
                 .insert(Collider::round_cuboid(3.8, 1.4, 2.2, 0.3))
                 .insert(Velocity::zero())
@@ -33,9 +37,6 @@ pub fn setup(
                 .insert(Car {                   
                     thrust: Vec3::new(2800.0, 1400.0, 1400.0),
                     drag: Vec3::new(100.0, 50.0, 100.0),
-                })
-                .with_children(|parent| {
-                    parent.spawn_scene(scenes_gltf.named_scenes["CAR"].clone());
                 });
 
             let desert_mesh_handle = &scenes_gltf.named_meshes["DESERT"];
@@ -64,12 +65,12 @@ pub fn setup(
                     .collect();
 
                 commands
-                    .spawn()
+                    .spawn(SceneBundle {
+                        scene: scenes_gltf.named_scenes["DESERT"].clone(),
+                        ..default()
+                    })
                     .insert(Collider::trimesh(vertices, indices))
-                    .insert(ActiveEvents::COLLISION_EVENTS)
-                    .with_children(|parent| {
-                        parent.spawn_scene(scenes_gltf.named_scenes["DESERT"].clone());
-                    });
+                    .insert(ActiveEvents::COLLISION_EVENTS);
             }
         }
     }

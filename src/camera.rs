@@ -3,9 +3,10 @@ use bevy::{
     math::{Vec2, Vec3},
     prelude::{
         Camera, Commands, GamepadAxis, GamepadAxisType, Gamepads, GlobalTransform, KeyCode,
-        PerspectiveCameraBundle, Query, Res, Transform, With, Without,
+        Query, Res, Transform, With, Without,
     },
 };
+use bevy::prelude::Camera3dBundle;
 use bevy_rapier3d::na::clamp;
 use smooth_bevy_cameras::{LookAngles, LookTransform, LookTransformBundle, Smoother};
 
@@ -20,14 +21,14 @@ pub fn setup(mut commands: Commands, car_query: Query<(&Car, &Transform)>) {
     let car_z = car_transform.translation.z;
 
     commands
-        .spawn_bundle(LookTransformBundle {
+        .spawn(Camera3dBundle::default())
+        .insert(LookTransformBundle {
             transform: LookTransform {
                 eye: Vec3::new(car_x - 50.0, car_y + 10.0, car_z),
                 target: Vec3::new(car_x, car_y, car_z),
             },
             smoother: Smoother::new(0.9),
-        })
-        .insert_bundle(PerspectiveCameraBundle::default());
+        });
 }
 
 pub fn look_and_orbit(
@@ -47,8 +48,9 @@ pub fn look_and_orbit(
             look_transform.target = car_transform.translation;
 
             if let Some(gamepad) = gamepads.iter().next() {
-                let axis_rx = GamepadAxis(*gamepad, GamepadAxisType::LeftStickX);
-                let axis_ry = GamepadAxis(*gamepad, GamepadAxisType::LeftStickY);
+
+                let axis_rx = GamepadAxis { gamepad, axis_type: GamepadAxisType::LeftStickX };
+                let axis_ry = GamepadAxis { gamepad, axis_type: GamepadAxisType::LeftStickY };
 
                 if let (Some(x), Some(y)) = (axes.get(axis_rx), axes.get(axis_ry)) {
                     let stick_pos = Vec2::new(x, y);

@@ -15,23 +15,24 @@ mod state;
 mod input; 
 
 fn main() {
-    let _clear_color_hex_string = "874f9c";
+    let clear_color_hex_string = "E5D9AB";
     App::new()
         .insert_resource(Msaa::default())
-        .insert_resource(WindowDescriptor {
-            width: 1280.,
-            height: 720.,
-            title: "desert-car".to_string(),
-            present_mode: PresentMode::Fifo,
-            ..default()
-        })
         .insert_resource(ClearColor(
-            // Color::hex(clear_color_hex_string).unwrap_or_else(|_| {
-            //     panic!("couldn't make hex color from {}", clear_color_hex_string)
-            // }),
-            Color::BLACK,
+            Color::hex(clear_color_hex_string).unwrap_or_else(|_| {
+                panic!("couldn't make hex color from {}", clear_color_hex_string)
+            }),
         ))
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            window: WindowDescriptor {
+                width: 1280.,
+                height: 720.,
+                title: "desert-car".to_string(),
+                present_mode: PresentMode::Fifo,
+                ..default()
+            },
+            ..default()
+        }))
         .add_plugin(LookTransformPlugin)
         .add_plugin(AudioPlugin)
         .add_plugin(RapierPhysicsPlugin::<NoUserData>::default())

@@ -2,8 +2,8 @@ use bevy::prelude::*;
 
 pub fn setup(mut commands: Commands) {
     commands.insert_resource(AmbientLight {
-        color: Color::ORANGE_RED,
-        brightness: 3.0,
+        color: Color::ANTIQUE_WHITE,
+        brightness: 5.0,
     });
     let point_light_intensity = 120000.0;
     let point_light_range = 500.;
@@ -15,7 +15,7 @@ pub fn setup(mut commands: Commands) {
         )
     });
 
-    commands.spawn_bundle(PointLightBundle {
+    commands.spawn(PointLightBundle {
         point_light: PointLight {
             color,
             range: point_light_range,
@@ -26,7 +26,7 @@ pub fn setup(mut commands: Commands) {
         ..Default::default()
     });
 
-    commands.spawn_bundle(PointLightBundle {
+    commands.spawn(PointLightBundle {
         point_light: PointLight {
             color,
             range: point_light_range,
@@ -37,7 +37,7 @@ pub fn setup(mut commands: Commands) {
         ..Default::default()
     });
 
-    commands.spawn_bundle(PointLightBundle {
+    commands.spawn(PointLightBundle {
         point_light: PointLight {
             color,
             range: point_light_range,
@@ -48,7 +48,7 @@ pub fn setup(mut commands: Commands) {
         ..Default::default()
     });
 
-    commands.spawn_bundle(PointLightBundle {
+    commands.spawn(PointLightBundle {
         point_light: PointLight {
             color,
             range: point_light_range,

@@ -18,11 +18,12 @@ pub fn get_car_movement(
     if let Ok((mut movements, mut transform)) = query.get_single_mut() {
         if let Some(gamepad) = gamepads.iter().next() {
             let right_trigger = button_axes
-                .get(GamepadButton(*gamepad, GamepadButtonType::RightTrigger2))
+                .get(GamepadButton { gamepad, button_type: GamepadButtonType::RightTrigger2 })
                 .unwrap();
 
             let left_trigger = button_axes
-                .get(GamepadButton(*gamepad, GamepadButtonType::LeftTrigger2))
+
+                .get(GamepadButton { gamepad, button_type: GamepadButtonType::LeftTrigger2 })
                 .unwrap();
 
             let push_factor = if left_trigger.abs() > 0.01 {
@@ -31,8 +32,8 @@ pub fn get_car_movement(
                 gamepad_push_factor
             };
 
-            let axis_rx = GamepadAxis(*gamepad, GamepadAxisType::RightStickX);
-            let axis_ry = GamepadAxis(*gamepad, GamepadAxisType::RightStickY);
+            let axis_rx = GamepadAxis { gamepad, axis_type: GamepadAxisType::RightStickX };
+            let axis_ry = GamepadAxis { gamepad, axis_type: GamepadAxisType::RightStickY };
 
             if let (Some(x), Some(y)) = (axes.get(axis_rx), axes.get(axis_ry)) {
                 // combine X and Y into one vector
@@ -60,7 +61,7 @@ pub fn get_car_movement(
                 }
             }
 
-            if button_inputs.just_pressed(GamepadButton(*gamepad, GamepadButtonType::North)) {
+            if button_inputs.just_pressed(GamepadButton { gamepad, button_type: GamepadButtonType::North }) {
                 // transform.rotation = Quat::from_rotation_x(0.0);
                 let x = transform.rotation.x;
                 let y = transform.rotation.y;
