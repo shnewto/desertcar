@@ -32,17 +32,29 @@ impl CarMovement {
 pub struct CarMovements(pub Vec<CarMovement>);
 
 pub fn apply_movement(
-    mut car_query: Query<(&mut CarMovements, &mut Car, &GlobalTransform, &mut ExternalForce, &Velocity)>,
+    mut car_query: Query<(Entity, &mut CarMovements, &mut Car, &GlobalTransform, &mut ExternalForce, &Velocity, &CollidingEntities)>,
 ) {
-    if let Ok((mut car_movements, car, global_transform, mut rb_forces, rb_velocities)) =
+    if let Ok((_car_entity, mut car_movements, car, global_transform, mut rb_forces, rb_velocities, colliding_entities)) =
         car_query.single_mut()
     {
+        // Check if car is on ground by checking if it has any collisions
+        let is_on_ground = !colliding_entities.is_empty();
+        
         let mut forces = Vec3::new(0.0, 0.0, 0.0);
         let mut torques = Vec3::new(0.0, 0.0, 0.0);
 
+        // Movement multiplier - reduce forces when in the air
+        let movement_multiplier = if is_on_ground {
+            1.0 // Full force on ground
+        } else {
+            0.000001 // Minimal force in air
+        };
+        
         for car_movement in car_movements.0.iter() {
-            forces += car_movement.as_lin_vec() * car.thrust;
-            torques += car_movement.as_ang_vec() * car.thrust;
+            // Apply forward/backward forces - reduce when in the air
+            forces += car_movement.as_lin_vec() * car.thrust * movement_multiplier;
+            // Apply turning torques - reduce when in the air
+            torques += car_movement.as_ang_vec() * car.thrust * movement_multiplier;
         }
 
         let local_to_global = global_transform.affine();
@@ -55,7 +67,7 @@ pub fn apply_movement(
         forces -= linvel * car.drag;
         
         let angvel: Vec3 = rb_velocities.angvel;
-        // Use higher angular drag on Y axis (turning axis) for better control
+        // Apply normal angular drag
         torques -= Vec3::new(angvel.x * car.drag.x, angvel.y * car.drag.y * 0.8, angvel.z * car.drag.z);
 
         rb_forces.force = forces;

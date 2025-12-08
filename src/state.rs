@@ -6,4 +6,5 @@ pub enum GameState {
     LoadingAssets,
     Setup,
     Running,
+    GameOver,
 }

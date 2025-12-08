@@ -6,7 +6,7 @@ use bevy::{
 };
 use bevy_rapier3d::{
     math::Vect,
-    prelude::{ActiveEvents, AdditionalMassProperties, Collider, ExternalForce, GravityScale, RigidBody, Velocity},
+    prelude::{ActiveEvents, AdditionalMassProperties, Collider, CollidingEntities, ExternalForce, GravityScale, RigidBody, Velocity},
 };
 
 use crate::{assets::SceneResource, car::Car, input, movement::CarMovements};
@@ -29,6 +29,7 @@ pub fn setup(
                     initial_transform,
                     RigidBody::Dynamic,
                     Collider::round_cuboid(3.8, 1.4, 2.2, 0.3),
+                    CollidingEntities::default(), // Track collisions to detect ground contact
                     AdditionalMassProperties::Mass(50.0), // Make car heavier but still movable
                     Velocity::zero(),
                     ExternalForce::default(),

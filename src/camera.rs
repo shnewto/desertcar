@@ -7,24 +7,31 @@ use smooth_bevy_cameras::{LookAngles, LookTransform, LookTransformBundle, Smooth
 
 use crate::car::Car;
 
-pub fn setup(mut commands: Commands, car_query: Query<(&Car, &Transform)>) {
-    let (_car, car_transform) = car_query.single().unwrap();
-    let car_x = car_transform.translation.x;
-    let car_y = car_transform.translation.y;
-    let car_z = car_transform.translation.z;
+pub fn setup(
+    mut commands: Commands,
+    car_query: Query<(&Car, &Transform)>,
+    camera_query: Query<Entity, With<Camera3d>>,
+) {
+    // Only spawn camera if one doesn't already exist
+    if camera_query.is_empty() {
+        let (_car, car_transform) = car_query.single().unwrap();
+        let car_x = car_transform.translation.x;
+        let car_y = car_transform.translation.y;
+        let car_z = car_transform.translation.z;
 
-    commands
-        .spawn((
-            Camera3d::default(),
-            LookTransformBundle {
-                transform: LookTransform {
-                    eye: Vec3::new(car_x - 50.0, car_y + 10.0, car_z),
-                    target: Vec3::new(car_x, car_y, car_z),
-                    up: Vec3::Y,
+        commands
+            .spawn((
+                Camera3d::default(),
+                LookTransformBundle {
+                    transform: LookTransform {
+                        eye: Vec3::new(car_x - 50.0, car_y + 10.0, car_z),
+                        target: Vec3::new(car_x, car_y, car_z),
+                        up: Vec3::Y,
+                    },
+                    smoother: Smoother::new(0.9),
                 },
-                smoother: Smoother::new(0.9),
-            },
-        ));
+            ));
+    }
 }
 
 type CarQueryFilter = (With<Car>, Without<Camera>);

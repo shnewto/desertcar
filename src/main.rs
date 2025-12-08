@@ -18,7 +18,7 @@ fn main() {
     App::new()
         .insert_resource(PointLightShadowMap { size: 2048 })
         .insert_resource(ClearColor(
-            Color::srgb_u8(0xE5, 0xD9, 0xAB),
+            Color::srgb_u8(0x00, 0x00, 0x00), // Black
         ))
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
