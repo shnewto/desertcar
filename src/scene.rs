@@ -9,7 +9,7 @@ use bevy_rapier3d::{
     prelude::{ActiveEvents, AdditionalMassProperties, Collider, CollidingEntities, ExternalForce, GravityScale, RigidBody, Velocity},
 };
 
-use crate::{assets::SceneResource, car::Car, input, movement::CarMovements};
+use crate::{assets::SceneResource, car::{Car, StuckTimer}, input, movement::CarMovements};
 
 pub fn setup(
     asset_server: Res<AssetServer>,
@@ -29,14 +29,15 @@ pub fn setup(
                     initial_transform,
                     RigidBody::Dynamic,
                     Collider::round_cuboid(3.8, 1.4, 2.2, 0.3),
-                    CollidingEntities::default(), // Track collisions to detect ground contact
-                    AdditionalMassProperties::Mass(50.0), // Make car heavier but still movable
-                    Velocity::zero(),
-                    ExternalForce::default(),
-                    GravityScale(20.0), // Very high for fast falling 
-                    CarMovements::default(),
-                    input::default_input_map(),
-                    Car {                   
+                        CollidingEntities::default(), // Track collisions to detect ground contact
+                        AdditionalMassProperties::Mass(50.0), // Make car heavier but still movable
+                        Velocity::zero(),
+                        ExternalForce::default(),
+                        GravityScale(20.0), // Very high for fast falling 
+                        CarMovements::default(),
+                        StuckTimer::default(), // Track if car is stuck
+                        input::default_input_map(),
+                        Car {
                         thrust: Vec3::new(5000.0, 2500.0, 2500.0), // Increased thrust to move heavier car
                         drag: Vec3::new(100.0, 2.0, 100.0), // Minimal Y drag for very fast falling
                     },
