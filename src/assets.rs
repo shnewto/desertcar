@@ -7,8 +7,8 @@ pub struct AssetsPlugin;
 impl Plugin for AssetsPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(SceneResource::default())
-            .add_system_set(SystemSet::on_enter(GameState::LoadingAssets).with_system(load))
-            .add_system_set(SystemSet::on_update(GameState::LoadingAssets).with_system(check));
+            .add_systems(OnEnter(GameState::LoadingAssets), load)
+            .add_systems(Update, check.run_if(in_state(GameState::LoadingAssets)));
     }
 }
 
@@ -22,11 +22,11 @@ fn load(asset_server: ResMut<AssetServer>, mut scene_assets: ResMut<SceneResourc
 }
 
 fn check(
-    mut state: ResMut<State<GameState>>,
+    mut next_state: ResMut<NextState<GameState>>,
     asset_server: Res<AssetServer>,
     scene_assets: Res<SceneResource>,
 ) {
-    if let LoadState::Loaded = asset_server.get_load_state(&scene_assets.handle) {
-        state.set(GameState::Setup).unwrap();
+    if let LoadState::Loaded = asset_server.load_state(&scene_assets.handle) {
+        next_state.set(GameState::Setup);
     }
 }

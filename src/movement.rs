@@ -32,16 +32,10 @@ impl CarMovement {
 pub struct CarMovements(pub Vec<CarMovement>);
 
 pub fn apply_movement(
-    mut car_query: Query<(
-        &mut CarMovements,
-        &mut Car,
-        &GlobalTransform,
-        &mut ExternalForce,
-        &Velocity,
-    )>,
+    mut car_query: Query<(&mut CarMovements, &mut Car, &GlobalTransform, &mut ExternalForce, &Velocity)>,
 ) {
     if let Ok((mut car_movements, car, global_transform, mut rb_forces, rb_velocities)) =
-        car_query.get_single_mut()
+        car_query.single_mut()
     {
         let mut forces = Vec3::new(0.0, 0.0, 0.0);
         let mut torques = Vec3::new(0.0, 0.0, 0.0);
@@ -51,14 +45,18 @@ pub fn apply_movement(
             torques += car_movement.as_ang_vec() * car.thrust;
         }
 
-        let local_to_global = global_transform.compute_matrix();
+        let local_to_global = global_transform.affine();
         forces = local_to_global.transform_vector3(forces);
         torques = local_to_global.transform_vector3(torques);
 
         let linvel: Vec3 = rb_velocities.linvel;
+        
+        // Apply normal drag - no special handling for upward movement
         forces -= linvel * car.drag;
+        
         let angvel: Vec3 = rb_velocities.angvel;
-        torques -= angvel * car.drag;
+        // Use higher angular drag on Y axis (turning axis) for better control
+        torques -= Vec3::new(angvel.x * car.drag.x, angvel.y * car.drag.y * 0.8, angvel.z * car.drag.z);
 
         rb_forces.force = forces;
         rb_forces.torque = torques;
