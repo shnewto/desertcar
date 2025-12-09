@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>desert-car</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+        }
+        
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="mobile-message" style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; color: #e0e0e0; font-family: monospace; text-align: center; padding: 20px; box-sizing: border-box;">
+        <div>
+            <h1 style="font-size: 32px; margin-bottom: 20px;">desert-car</h1>
+            <p style="font-size: 18px; line-height: 1.6;">there's no road in the desert on mobile or touch screens</p>
+        </div>
+    </div>
+    <script type="module">
+        // Check if device is mobile or touch screen
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        
+        if (isMobile || isTouch) {
+            const message = document.getElementById('mobile-message');
+            message.style.display = 'flex';
+        } else {
+            import('./target/wasm32-unknown-unknown/release/desert-car.js').then(module => {
+                module.default().catch((error) => {
+                    console.error('Failed to initialize WASM:', error);
+                    document.body.innerHTML = '<div style="color: white; padding: 20px; font-family: monospace;">Error loading game: ' + error + '</div>';
+                });
+            }).catch((error) => {
+                console.error('Failed to load WASM module:', error);
+                document.body.innerHTML = '<div style="color: white; padding: 20px; font-family: monospace;">Error loading game: ' + error + '</div>';
+            });
+        }
+    </script>
+</body>
+</html>
+

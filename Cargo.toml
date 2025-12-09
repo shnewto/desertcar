@@ -13,9 +13,52 @@ smooth-bevy-cameras = { git = "https://github.com/bonsairobo/smooth-bevy-cameras
 
 [dependencies.bevy]
 version = "0.17"
+default-features = false
+# Only enable features we actually need to minimize WASM size
+features = [
+  # Core essentials
+  "std",
+  "async_executor",
+  "bevy_asset",
+  "bevy_state",
+  "bevy_log",
+  "bevy_color",
+  "reflect_auto_register",
+  # Window and input
+  "bevy_window",
+  "bevy_winit",
+  "bevy_input_focus",
+  "default_font",
+  "multi_threaded",
+  "webgl2",
+  # Rendering (3D only - no 2D sprites)
+  "bevy_render",
+  "bevy_core_pipeline",
+  "bevy_pbr",
+  "bevy_light",
+  "bevy_camera",
+  "bevy_mesh",
+  "bevy_shader",
+  "hdr",
+  "tonemapping_luts",
+  # Assets
+  "bevy_gltf",
+  "bevy_scene",
+  "bevy_image",
+  "png",
+  "ktx2",
+  "zstd_rust",
+  # UI (for text display)
+  "bevy_ui",
+  "bevy_text",
+  "bevy_ui_render",
+  # Audio
+  "bevy_audio",
+  "vorbis",
+]
 
 [profile.release]
-opt-level = "s"     # Optimize for size (less aggressive than "z")
+opt-level = "z"     
 lto = "fat"         # Link-time optimization
 codegen-units = 1   # Better optimization, slower compile
 strip = "symbols"   # Strip symbols

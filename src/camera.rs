@@ -19,23 +19,25 @@ pub fn setup(
     mut commands: Commands,
     camera_query: Query<Entity, With<Camera3d>>,
 ) {
-    // Only spawn camera if one doesn't already exist
-    if camera_query.is_empty() {
-        // Start camera far out, high up, and directly behind the car, then it will smoothly zoom in when activated
-        commands
-            .spawn((
-                Camera3d::default(),
-                LookTransformBundle {
-                    transform: LookTransform {
-                        eye: CAR_START_POSITION + CAMERA_OFFSET_FROM_CAR, 
-                        target: CAR_START_POSITION,
-                        up: Vec3::Y,
-                    },
-                    smoother: Smoother::new(0.9),
-                },
-                CameraNeedsActivation,
-            ));
+    // Remove any existing cameras (like the loading camera) before spawning the game camera
+    for entity in camera_query.iter() {
+        commands.entity(entity).despawn();
     }
+    
+    // Spawn the game camera
+    commands
+        .spawn((
+            Camera3d::default(),
+            LookTransformBundle {
+                transform: LookTransform {
+                    eye: CAR_START_POSITION + CAMERA_OFFSET_FROM_CAR, 
+                    target: CAR_START_POSITION,
+                    up: Vec3::Y,
+                },
+                smoother: Smoother::new(0.9),
+            },
+            CameraNeedsActivation,
+        ));
 }
 
 type CarQueryFilter = (With<Car>, Without<Camera>);

@@ -18,9 +18,18 @@ pub fn setup(
     meshes: Res<Assets<Mesh>>,
     scene_assets: ResMut<SceneResource>,
     mut commands: Commands,
+    car_query: Query<(), With<Car>>,
 ) {
+    // Prevent duplicate spawning when re-entering Running state (e.g., from GameOver -> Running)
+    if !car_query.is_empty() {
+        bevy::log::info!("Car already exists, skipping scene spawn");
+        return;
+    }
+    
+    bevy::log::info!("Scene setup called");
     if let LoadState::Loaded = asset_server.load_state(&scene_assets.handle)
         && let Some(scenes_gltf) = assets_gltf.get(&scene_assets.handle) {
+            bevy::log::info!("Assets loaded, spawning car and terrain");
             let initial_transform = Transform {
                 translation: CAR_START_POSITION,
                 rotation: Quat::IDENTITY, // Ensure car starts with correct orientation

@@ -1,0 +1,7 @@
+blend/
+target/
+.git/
+node_modules/
+*.blend
+*.blend1
+

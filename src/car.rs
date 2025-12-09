@@ -20,7 +20,6 @@ impl Plugin for CarPlugin {
             )
                 .run_if(in_state(GameState::Running)),
         )
-        .add_systems(OnEnter(GameState::Running), spawn_controls_text)
         .add_systems(OnEnter(GameState::GameOver), (spawn_game_over_screen, zero_car_velocity))
         .add_systems(Update, handle_play_again_button.run_if(in_state(GameState::GameOver)))
         .add_systems(OnExit(GameState::GameOver), (cleanup_game_over_screen, reset_car_on_exit_game_over));
@@ -42,7 +41,7 @@ pub struct StuckTimer {
     reset_grace_period: f32, // Grace period after reset to prevent immediate game over
 }
 
-fn spawn_controls_text(mut commands: Commands, asset_server: Res<AssetServer>) {
+pub fn spawn_controls_text(mut commands: Commands, asset_server: Res<AssetServer>) {
     let controls_text = "
 drive
 ----------
