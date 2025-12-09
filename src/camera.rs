@@ -3,9 +3,11 @@ use bevy::{
     prelude::*,
 };
 use bevy_rapier3d::na::clamp;
+use leafwing_input_manager::prelude::*;
 use smooth_bevy_cameras::{LookAngles, LookTransform, LookTransformBundle, Smoother};
 
 use crate::car::{Car, CAR_START_POSITION};
+use crate::input::CarAction;
 
 // Camera offset from car start position - edit this to change initial camera position
 pub const CAMERA_OFFSET_FROM_CAR: Vec3 = Vec3::new(-32.0, 16.0, -8.0);
@@ -54,21 +56,22 @@ pub fn activate_camera_on_input(
 pub fn look_and_orbit(
     mut look_query: Query<&mut LookTransform>,
     keys: Res<ButtonInput<KeyCode>>,
-    car_query: Query<(&GlobalTransform, &Transform), CarQueryFilter>,
+    car_query: Query<(&GlobalTransform, &Transform, &ActionState<CarAction>), CarQueryFilter>,
     camera_activation_query: Query<(), With<CameraNeedsActivation>>,
 ) {
     // Only apply follow logic if camera has been activated (key pressed)
-    let is_activated = camera_activation_query.is_empty();
+    let _is_activated = camera_activation_query.is_empty();
     
     if let Ok(mut look_transform) = look_query.single_mut()
-        && let Ok((_global_transform, car_transform)) = car_query.single() {
+        && let Ok((_global_transform, car_transform, action_state)) = car_query.single() {
             let mut orbit = false;
-            let keyboard_orbit_factor = 120.0f32.to_radians();
-            let _gamepad_orbit_factor = 5.0f32.to_radians();
+            let keyboard_orbit_factor = 30.0f32.to_radians(); // Reduced from 120.0 for less sensitivity
+            let gamepad_orbit_factor = 2.0f32.to_radians(); // Gamepad left stick for camera
 
             let mut angles = LookAngles::from_vector(-look_transform.look_direction().unwrap());
             look_transform.target = car_transform.translation;
 
+            // Keyboard camera controls
             if keys.pressed(KeyCode::KeyW) {
                 angles.add_pitch(keyboard_orbit_factor);
                 orbit = true;
@@ -87,6 +90,14 @@ pub fn look_and_orbit(
                 angles.add_yaw(-keyboard_orbit_factor);
                 orbit = true;
             }
+            
+            // Gamepad left stick for camera control (using leafwing-input-manager)
+            let camera_axis = action_state.axis_pair(&CarAction::CameraOrbit);
+            if camera_axis.length_squared() > 0.01 {
+                angles.add_yaw(camera_axis.x * gamepad_orbit_factor);
+                angles.add_pitch(-camera_axis.y * gamepad_orbit_factor); // Invert Y for camera
+                orbit = true;
+            }
 
             // follow eye
             if orbit {
@@ -94,40 +105,21 @@ pub fn look_and_orbit(
                     look_transform.target + 1.0 * look_transform.radius() * angles.unit_vector();
             }
 
-            // If not orbiting and camera is activated, smoothly follow the car
-            if !orbit && is_activated {
-                let current_distance = look_transform.radius();
-                
-                // Only zoom in if we're significantly far away (more than 60 units)
-                // If already close, just let it follow naturally without forcing a distance
-                if current_distance > 60.0 {
-                    let target_distance = 50.0;
-                    // Gradually zoom in from far position
-                    let direction = (look_transform.eye - look_transform.target).normalize();
-                    let new_distance = current_distance * 0.95 + target_distance * 0.05; // Smooth interpolation
-                    look_transform.eye = look_transform.target + direction * new_distance;
-                }
-                // If already close (<= 60 units), don't adjust distance - just let it follow naturally
-            }
-            
-            // Only clamp when camera is at follow distance (not when close from reset)
-            let current_distance = look_transform.radius();
-            if current_distance >= 40.0 && current_distance <= 60.0 {
-                look_transform.eye.x = clamp(
-                    look_transform.eye.x,
-                    car_transform.translation.x - 40.0,
-                    car_transform.translation.x + 40.0,
-                );
+            // Simple clamping-based follow (like the old implementation at 9ff6995)
+            // This keeps the camera in a good position without complex distance adjustments
+            look_transform.eye.x = clamp(
+                look_transform.eye.x,
+                car_transform.translation.x - 40.0,
+                car_transform.translation.x + 40.0,
+            );
 
-                look_transform.eye.z = clamp(
-                    look_transform.eye.z,
-                    car_transform.translation.z - 40.0,
-                    car_transform.translation.z + 40.0,
-                );
-            }
+            look_transform.eye.z = clamp(
+                look_transform.eye.z,
+                car_transform.translation.z - 40.0,
+                car_transform.translation.z + 40.0,
+            );
 
-            // Always ensure camera is high enough above ground
-            let min_height = car_transform.translation.y + 10.0;
-            look_transform.eye.y = look_transform.eye.y.max(min_height);
+            // Always keep camera at a fixed height above the car (like old implementation)
+            look_transform.eye.y = car_transform.translation.y + 10.0;
     }
 }
