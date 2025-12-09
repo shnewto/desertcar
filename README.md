@@ -1,4 +1,4 @@
-# desert-car
+# desertcar
 
 a car, in a desert
 
