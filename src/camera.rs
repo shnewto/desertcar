@@ -65,37 +65,36 @@ pub fn look_and_orbit(
     if let Ok(mut look_transform) = look_query.single_mut()
         && let Ok((_global_transform, car_transform, action_state)) = car_query.single() {
             let mut orbit = false;
-            let keyboard_orbit_factor = 2.0f32.to_radians(); // Reduced for less sensitivity
-            let gamepad_orbit_factor = 2.0f32.to_radians(); // Gamepad left stick for camera
+            let orbit_factor = 2.0f32.to_radians(); // Camera orbit sensitivity
 
             let mut angles = LookAngles::from_vector(-look_transform.look_direction().unwrap());
             look_transform.target = car_transform.translation;
 
             // Keyboard camera controls
             if keys.pressed(KeyCode::KeyW) {
-                angles.add_pitch(keyboard_orbit_factor);
+                angles.add_pitch(orbit_factor);
                 orbit = true;
             }
             if keys.pressed(KeyCode::KeyS) {
-                angles.add_pitch(-keyboard_orbit_factor);
+                angles.add_pitch(-orbit_factor);
                 orbit = true;
             }
 
             if keys.pressed(KeyCode::KeyD) {
-                angles.add_yaw(keyboard_orbit_factor);
+                angles.add_yaw(orbit_factor);
                 orbit = true;
             }
 
             if keys.pressed(KeyCode::KeyA) {
-                angles.add_yaw(-keyboard_orbit_factor);
+                angles.add_yaw(-orbit_factor);
                 orbit = true;
             }
             
             // Gamepad left stick for camera control (using leafwing-input-manager)
             let camera_axis = action_state.axis_pair(&CarAction::CameraOrbit);
             if camera_axis.length_squared() > 0.01 {
-                angles.add_yaw(camera_axis.x * gamepad_orbit_factor);
-                angles.add_pitch(-camera_axis.y * gamepad_orbit_factor); // Invert Y for camera
+                angles.add_yaw(camera_axis.x * orbit_factor);
+                angles.add_pitch(-camera_axis.y * orbit_factor); // Invert Y for camera
                 orbit = true;
             }
 

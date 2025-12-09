@@ -26,46 +26,39 @@ pub enum CarAction {
 pub fn get_car_movement(
     mut query: Query<(&mut CarMovements, &mut Transform, &ActionState<CarAction>)>,
 ) {
-    let keyboard_turn_factor = 23.0; // turn factor to compensate for high gravity
-    let gamepad_turn_factor = 23.0; // gamepad slightly less sensitive for better control
-    let keyboard_push_factor = 13.0;
-    let keyboard_boost_factor = 6.0;
+    let turn_factor = 23.0; // turn factor to compensate for high gravity
+    let push_factor = 13.0;
+    let boost_factor = 6.0;
 
     if let Ok((mut movements, mut transform, action_state)) = query.single_mut() {
-        // Both keyboard and gamepad work simultaneously - no need to check which is being used
-        let push_factor = if action_state.pressed(&CarAction::Boost) {
-            keyboard_push_factor + keyboard_boost_factor
+        // Both keyboard and gamepad work simultaneously
+        let current_push_factor = if action_state.pressed(&CarAction::Boost) {
+            push_factor + boost_factor
         } else {
-            keyboard_push_factor
+            push_factor
         };
 
         // Forward/backward movement
         if action_state.pressed(&CarAction::PushForward) {
-            movements.0.push(CarMovement::PushForward(push_factor))
+            movements.0.push(CarMovement::PushForward(current_push_factor))
         }
         if action_state.pressed(&CarAction::PushBackward) {
-            movements.0.push(CarMovement::PushBackward(push_factor))
+            movements.0.push(CarMovement::PushBackward(current_push_factor))
         }
         
         // Keyboard turning (button presses) - always works, even if gamepad is also being used
         if action_state.pressed(&CarAction::TurnLeft) {
-            movements.0.push(CarMovement::TurnLeft(keyboard_turn_factor))
+            movements.0.push(CarMovement::TurnLeft(turn_factor))
         }
         if action_state.pressed(&CarAction::TurnRight) {
-            movements.0.push(CarMovement::TurnRight(keyboard_turn_factor))
+            movements.0.push(CarMovement::TurnRight(turn_factor))
         }
         
         // Gamepad turning (dual axis - right stick X) - works simultaneously with keyboard
         let turn_axis = action_state.axis_pair(&CarAction::TurnAxis);
         let turn_x = turn_axis.x;
         if turn_x.abs() > 0.01 {
-            let turn_force = if turn_x < 0.0 {
-                // Left (negative X)
-                gamepad_turn_factor * turn_x.abs()
-            } else {
-                // Right (positive X)
-                gamepad_turn_factor * turn_x
-            };
+            let turn_force = turn_factor * turn_x.abs(); // Use same turn factor for gamepad
             if turn_x < 0.0 {
                 movements.0.push(CarMovement::TurnLeft(turn_force))
             } else {
