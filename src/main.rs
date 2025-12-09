@@ -1,4 +1,4 @@
-use bevy::{asset::LoadState, light::PointLightShadowMap, prelude::*, window::{PresentMode, WindowResolution}};
+use bevy::{light::PointLightShadowMap, prelude::*, window::{PresentMode, WindowResolution}};
 use bevy_kira_audio::AudioPlugin;
 use bevy_rapier3d::prelude::*;
 use leafwing_input_manager::prelude::*;
@@ -13,9 +13,6 @@ mod movement;
 mod scene;
 mod state;
 mod input; 
-
-#[derive(Component)]
-struct LoadingScreen;
 
 #[derive(Component)]
 struct DriveScreen;
@@ -58,21 +55,11 @@ fn main() {
             RapierPhysicsPlugin::<NoUserData>::default(),
             InputManagerPlugin::<input::CarAction>::default(),
         ))
-        // Loading state - exactly like limbo_pass
-        .add_systems(OnEnter(GameState::LoadingScreen), (
-            spawn_loading_camera,
+        // Setup state (drive button) - start loading assets and show drive screen
+        .add_systems(OnEnter(GameState::Setup), (
+            spawn_setup_camera,
             lighting::setup,
             assets::load,
-            spawn_loading_screen,
-        ))
-        .add_systems(Update, (
-            check_loaded.run_if(in_state(GameState::LoadingScreen)),
-        ))
-        .add_systems(OnExit(GameState::LoadingScreen), (
-            cleanup_loading_screen,
-        ))
-        // Setup state (drive button)
-        .add_systems(OnEnter(GameState::Setup), (
             spawn_drive_screen,
         ))
         .add_systems(Update, (
@@ -92,52 +79,8 @@ fn main() {
         .run();
 }
 
-fn spawn_loading_camera(mut commands: Commands) {
+fn spawn_setup_camera(mut commands: Commands) {
     commands.spawn(Camera3d::default());
-}
-
-fn check_loaded(
-    asset_server: Res<AssetServer>,
-    scene_assets: Res<assets::SceneResource>,
-    mut next_state: ResMut<NextState<GameState>>,
-) {
-    if let LoadState::Loaded = asset_server.load_state(&scene_assets.handle) {
-        next_state.set(GameState::Setup);
-    }
-}
-
-fn spawn_loading_screen(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let font_handle = asset_server.load("font/NotoSansMono-Bold.ttf");
-    
-    commands
-        .spawn((
-            Node {
-                width: Val::Percent(100.),
-                height: Val::Percent(100.),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
-                flex_direction: FlexDirection::Column,
-                ..default()
-            },
-            LoadingScreen,
-        ))
-        .with_children(|parent| {
-            parent.spawn((
-                Text("loading the desert".to_string()),
-                TextFont {
-                    font: font_handle,
-                    font_size: 48.,
-                    ..default()
-                },
-                TextColor(Color::srgb(0.9, 0.9, 0.9)),
-            ));
-        });
-}
-
-fn cleanup_loading_screen(mut commands: Commands, query: Query<Entity, With<LoadingScreen>>) {
-    for entity in query.iter() {
-        commands.entity(entity).despawn();
-    }
 }
 
 fn spawn_drive_screen(mut commands: Commands, asset_server: Res<AssetServer>) {
