@@ -1,6 +1,6 @@
-use crate::{camera::{look_and_orbit, activate_camera_on_input, CameraNeedsActivation}, input::get_car_movement, movement::apply_movement, state::GameState};
+use crate::{camera::{look_and_orbit, activate_camera_on_input, CameraNeedsActivation, CAMERA_OFFSET_FROM_CAR}, input::get_car_movement, movement::apply_movement, state::GameState};
 use bevy::prelude::*;
-use bevy_rapier3d::prelude::Velocity;
+use bevy_rapier3d::prelude::{Velocity, CollidingEntities};
 use smooth_bevy_cameras::LookTransform;
 
 pub struct CarPlugin;
@@ -14,8 +14,9 @@ impl Plugin for CarPlugin {
                 get_car_movement,
                 apply_movement.after(get_car_movement),
                 look_and_orbit.after(apply_movement),
-                check_stuck,
-                check_game_over,
+                // Run game over checks after movement to ensure car state is updated
+                check_stuck.after(apply_movement),
+                check_game_over.after(apply_movement),
             )
                 .run_if(in_state(GameState::Running)),
         )
@@ -38,6 +39,7 @@ struct ControlsText;
 #[derive(Component, Default)]
 pub struct StuckTimer {
     stuck_duration: f32,
+    reset_grace_period: f32, // Grace period after reset to prevent immediate game over
 }
 
 fn spawn_controls_text(mut commands: Commands, asset_server: Res<AssetServer>) {
@@ -79,11 +81,18 @@ w a s d";
 }
 
 fn check_stuck(
-    mut car_query: Query<(&Transform, &mut StuckTimer, &Velocity), With<Car>>,
+    mut car_query: Query<(&Transform, &mut StuckTimer, &CollidingEntities), With<Car>>,
     time: Res<Time>,
     mut next_state: ResMut<NextState<GameState>>,
 ) {
-    if let Ok((transform, mut stuck_timer, velocity)) = car_query.single_mut() {
+    if let Ok((transform, mut stuck_timer, colliding_entities)) = car_query.single_mut() {
+        // Decrease grace period after reset
+        if stuck_timer.reset_grace_period > 0.0 {
+            stuck_timer.reset_grace_period = (stuck_timer.reset_grace_period - time.delta_secs()).max(0.0);
+            // Don't check for game over during grace period
+            return;
+        }
+        
         // Check if car is on its side or upside down
         // Get the up vector of the car (Y axis in local space)
         let car_up = transform.rotation * Vec3::Y;
@@ -95,20 +104,19 @@ fn check_stuck(
         let dot_product = car_up.dot(world_up);
         let is_upside_down_or_on_side = dot_product < 0.5;
         
-        // Check if car is stationary (very low velocity)
-        let speed = velocity.linvel.length();
-        let is_stationary = speed < 2.0;
+        // Check if car is touching the ground (any part of the car is colliding)
+        let is_touching_ground = !colliding_entities.is_empty();
         
-        // If both conditions are met, increment timer
-        if is_upside_down_or_on_side && is_stationary {
+        // If car is in bad orientation AND touching ground, increment timer
+        if is_upside_down_or_on_side && is_touching_ground {
             stuck_timer.stuck_duration += time.delta_secs();
             
-            // If stuck for more than 2 seconds, trigger game over
-            if stuck_timer.stuck_duration >= 2.0 {
+            // If in bad orientation for more than 1/4 second, trigger game over
+            if stuck_timer.stuck_duration >= 0.25 {
                 next_state.set(GameState::GameOver);
             }
         } else {
-            // Reset timer if conditions aren't met
+            // Reset timer if conditions aren't met (car is upright or not touching ground)
             stuck_timer.stuck_duration = 0.0;
         }
     }
@@ -194,25 +202,26 @@ fn handle_play_again_button(
                         *text_color = TextColor(Color::srgb(0.9, 0.9, 0.9));
                     }
                     Interaction::Pressed => {
-                        // Reset car to starting position
+                        // Reset car to starting position FIRST - ensure everything is reset before state change
                         if let Ok((mut transform, mut velocity, mut stuck_timer)) = car_query.single_mut() {
-                            let car_pos = Vec3::new(-700.0, 1.0, 0.0);
-                            transform.translation = car_pos;
-                            transform.rotation = Quat::IDENTITY;
+                            transform.translation = CAR_START_POSITION;
+                            transform.rotation = Quat::IDENTITY; // Ensure car is upright
                             velocity.linvel = Vec3::ZERO;
                             velocity.angvel = Vec3::ZERO;
-                            stuck_timer.stuck_duration = 0.0; // Reset stuck timer
+                            stuck_timer.stuck_duration = 0.0; // Reset stuck timer to prevent immediate game over
+                            stuck_timer.reset_grace_period = 0.5; // Give 0.5 seconds grace period after reset
                         }
                         
                         // Reset camera to far out position (behind and high), then it will smoothly zoom in when activated
                         for (entity, mut look_transform) in camera_query.iter_mut() {
-                            look_transform.eye = Vec3::new(-700.0 - 16.0, 1.0 + 16.0, -16.0);
-                            look_transform.target = Vec3::new(-700.0, 1.0, 0.0);
+                            look_transform.eye = CAR_START_POSITION + CAMERA_OFFSET_FROM_CAR;
+                            look_transform.target = CAR_START_POSITION;
                             // Re-add activation component so camera needs to be activated again
                             commands.entity(entity).insert(CameraNeedsActivation);
                         }
                         
-                        // Return to running state
+                        // Return to running state AFTER all resets are complete
+                        // This ensures the car is in a good state before game over checks run again
                         next_state.set(GameState::Running);
                     }
                 }
@@ -226,6 +235,9 @@ fn cleanup_game_over_screen(mut commands: Commands, query: Query<Entity, With<Ga
         commands.entity(entity).despawn();
     }
 }
+
+// Car starting position - edit this to change where the car spawns/respawns
+pub const CAR_START_POSITION: Vec3 = Vec3::new(-700.0, 10.0, 0.0);
 
 #[derive(Default, Component, Debug)]
 pub struct Car {

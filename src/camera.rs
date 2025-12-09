@@ -5,31 +5,28 @@ use bevy::{
 use bevy_rapier3d::na::clamp;
 use smooth_bevy_cameras::{LookAngles, LookTransform, LookTransformBundle, Smoother};
 
-use crate::car::Car;
+use crate::car::{Car, CAR_START_POSITION};
+
+// Camera offset from car start position - edit this to change initial camera position
+pub const CAMERA_OFFSET_FROM_CAR: Vec3 = Vec3::new(-32.0, 16.0, -8.0);
 
 #[derive(Component)]
 pub struct CameraNeedsActivation;
 
 pub fn setup(
     mut commands: Commands,
-    car_query: Query<(&Car, &Transform)>,
     camera_query: Query<Entity, With<Camera3d>>,
 ) {
     // Only spawn camera if one doesn't already exist
     if camera_query.is_empty() {
-        let (_car, car_transform) = car_query.single().unwrap();
-        let car_x = car_transform.translation.x;
-        let car_y = car_transform.translation.y;
-        let car_z = car_transform.translation.z;
-
         // Start camera far out, high up, and directly behind the car, then it will smoothly zoom in when activated
         commands
             .spawn((
                 Camera3d::default(),
                 LookTransformBundle {
                     transform: LookTransform {
-                        eye: Vec3::new(car_x - 16.0, car_y + 16.0, car_z - 8.0), 
-                        target: Vec3::new(car_x, car_y, car_z),
+                        eye: CAR_START_POSITION + CAMERA_OFFSET_FROM_CAR, 
+                        target: CAR_START_POSITION,
                         up: Vec3::Y,
                     },
                     smoother: Smoother::new(0.9),

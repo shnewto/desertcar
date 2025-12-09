@@ -9,7 +9,7 @@ use bevy_rapier3d::{
     prelude::{ActiveEvents, AdditionalMassProperties, Collider, CollidingEntities, ExternalForce, GravityScale, RigidBody, Velocity},
 };
 
-use crate::{assets::SceneResource, car::{Car, StuckTimer}, input, movement::CarMovements};
+use crate::{assets::SceneResource, car::{Car, StuckTimer, CAR_START_POSITION}, input, movement::CarMovements};
 
 pub fn setup(
     asset_server: Res<AssetServer>,
@@ -21,7 +21,11 @@ pub fn setup(
 ) {
     if let LoadState::Loaded = asset_server.load_state(&scene_assets.handle)
         && let Some(scenes_gltf) = assets_gltf.get(&scene_assets.handle) {
-            let initial_transform = Transform::from_xyz(-700.0, 1.0, 0.0);
+            let initial_transform = Transform {
+                translation: CAR_START_POSITION,
+                rotation: Quat::IDENTITY, // Ensure car starts with correct orientation
+                scale: Vec3::ONE,
+            };
 
             commands
                 .spawn((
@@ -54,11 +58,12 @@ pub fn setup(
                 
                 bevy::log::info!("Desert terrain scene spawned");
                 
-                // Try to add collider if we can extract mesh data
+                // Try to add collider from the solid terrain mesh (not the wireframe)
+                // The wireframe mesh will render for visual effect, but collision uses the solid mesh
                 let desert_mesh_handle = scenes_gltf.named_meshes.get("DESERT");
                 
                 if let Some(desert_mesh_handle) = desert_mesh_handle {
-                    bevy::log::info!("Found DESERT mesh handle");
+                    bevy::log::info!("Found DESERT mesh handle (solid terrain for collision)");
                     
                     let desert_mesh: Option<&Mesh> = gltf_meshes
                         .get(desert_mesh_handle)
