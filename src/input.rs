@@ -26,25 +26,17 @@ pub enum CarAction {
 pub fn get_car_movement(
     mut query: Query<(&mut CarMovements, &mut Transform, &ActionState<CarAction>)>,
 ) {
-    let (keyboard_turn_factor, gamepad_turn_factor) = (23.0, 21.0); // turn factor to compensate for high gravity - gamepad slightly less sensitive
-    let (keyboard_push_factor, gamepad_push_factor) = (13.0, 13.0);
-    let (keyboard_boost_factor, gamepad_boost_factor) = (6.0, 6.0);
+    let keyboard_turn_factor = 23.0; // turn factor to compensate for high gravity
+    let gamepad_turn_factor = 23.0; // gamepad slightly less sensitive for better control
+    let keyboard_push_factor = 13.0;
+    let keyboard_boost_factor = 6.0;
 
     if let Ok((mut movements, mut transform, action_state)) = query.single_mut() {
-        // Check if gamepad is being used (check if any gamepad button/trigger is pressed)
-        // This is more reliable than checking the turn axis, which might not be active
-        let is_using_gamepad = action_state.pressed(&CarAction::PushForward) 
-            || action_state.pressed(&CarAction::Boost)
-            || action_state.axis_pair(&CarAction::TurnAxis).length_squared() > 0.01
-            || action_state.axis_pair(&CarAction::CameraOrbit).length_squared() > 0.01;
-        
-        let push_factor_base = if is_using_gamepad { gamepad_push_factor } else { keyboard_push_factor };
-        let boost_factor = if is_using_gamepad { gamepad_boost_factor } else { keyboard_boost_factor };
-        
+        // Both keyboard and gamepad work simultaneously - no need to check which is being used
         let push_factor = if action_state.pressed(&CarAction::Boost) {
-            push_factor_base + boost_factor
+            keyboard_push_factor + keyboard_boost_factor
         } else {
-            push_factor_base
+            keyboard_push_factor
         };
 
         // Forward/backward movement
@@ -55,17 +47,15 @@ pub fn get_car_movement(
             movements.0.push(CarMovement::PushBackward(push_factor))
         }
         
-        // Keyboard turning (button presses) - only if not using gamepad
-        if !is_using_gamepad {
-            if action_state.pressed(&CarAction::TurnLeft) {
-                movements.0.push(CarMovement::TurnLeft(keyboard_turn_factor))
-            }
-            if action_state.pressed(&CarAction::TurnRight) {
-                movements.0.push(CarMovement::TurnRight(keyboard_turn_factor))
-            }
+        // Keyboard turning (button presses) - always works, even if gamepad is also being used
+        if action_state.pressed(&CarAction::TurnLeft) {
+            movements.0.push(CarMovement::TurnLeft(keyboard_turn_factor))
+        }
+        if action_state.pressed(&CarAction::TurnRight) {
+            movements.0.push(CarMovement::TurnRight(keyboard_turn_factor))
         }
         
-        // Gamepad turning (dual axis - right stick X)
+        // Gamepad turning (dual axis - right stick X) - works simultaneously with keyboard
         let turn_axis = action_state.axis_pair(&CarAction::TurnAxis);
         let turn_x = turn_axis.x;
         if turn_x.abs() > 0.01 {

@@ -65,7 +65,7 @@ pub fn look_and_orbit(
     if let Ok(mut look_transform) = look_query.single_mut()
         && let Ok((_global_transform, car_transform, action_state)) = car_query.single() {
             let mut orbit = false;
-            let keyboard_orbit_factor = 30.0f32.to_radians(); // Reduced from 120.0 for less sensitivity
+            let keyboard_orbit_factor = 2.0f32.to_radians(); // Reduced for less sensitivity
             let gamepad_orbit_factor = 2.0f32.to_radians(); // Gamepad left stick for camera
 
             let mut angles = LookAngles::from_vector(-look_transform.look_direction().unwrap());
