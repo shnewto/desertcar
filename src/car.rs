@@ -21,9 +21,9 @@ impl Plugin for CarPlugin {
                 .run_if(in_state(GameState::Running)),
         )
         .add_systems(OnEnter(GameState::Running), spawn_controls_text)
-        .add_systems(OnEnter(GameState::GameOver), spawn_game_over_screen)
+        .add_systems(OnEnter(GameState::GameOver), (spawn_game_over_screen, zero_car_velocity))
         .add_systems(Update, handle_play_again_button.run_if(in_state(GameState::GameOver)))
-        .add_systems(OnExit(GameState::GameOver), cleanup_game_over_screen);
+        .add_systems(OnExit(GameState::GameOver), (cleanup_game_over_screen, reset_car_on_exit_game_over));
     }
 }
 
@@ -134,6 +134,30 @@ fn check_game_over(
     }
 }
 
+fn zero_car_velocity(
+    mut car_query: Query<&mut Velocity, With<Car>>,
+) {
+    if let Ok(mut velocity) = car_query.single_mut() {
+        velocity.linvel = Vec3::ZERO;
+        velocity.angvel = Vec3::ZERO;
+    }
+}
+
+fn reset_car_on_exit_game_over(
+    mut car_query: Query<(&mut Transform, &mut Velocity, &mut StuckTimer), With<Car>>,
+) {
+    // Ensure car is reset when exiting game over state (as a backup to button handler)
+    // This runs when transitioning from GameOver to Running, ensuring car is always reset
+    if let Ok((mut transform, mut velocity, mut stuck_timer)) = car_query.single_mut() {
+        transform.translation = CAR_START_POSITION;
+        transform.rotation = Quat::IDENTITY;
+        velocity.linvel = Vec3::ZERO;
+        velocity.angvel = Vec3::ZERO;
+        stuck_timer.stuck_duration = 0.0;
+        stuck_timer.reset_grace_period = 0.5;
+    }
+}
+
 fn spawn_game_over_screen(mut commands: Commands, asset_server: Res<AssetServer>) {
     let font_handle = asset_server.load("font/NotoSansMono-Bold.ttf");
     
@@ -202,7 +226,7 @@ fn handle_play_again_button(
                         *text_color = TextColor(Color::srgb(0.9, 0.9, 0.9));
                     }
                     Interaction::Pressed => {
-                        // Reset car to starting position FIRST - ensure everything is reset before state change
+                        // Reset car to starting position - try to reset, but OnExit handler will ensure it happens
                         if let Ok((mut transform, mut velocity, mut stuck_timer)) = car_query.single_mut() {
                             transform.translation = CAR_START_POSITION;
                             transform.rotation = Quat::IDENTITY; // Ensure car is upright
@@ -212,6 +236,9 @@ fn handle_play_again_button(
                             stuck_timer.reset_grace_period = 0.5; // Give 0.5 seconds grace period after reset
                         }
                         
+                        // Always transition to Running state - the OnExit handler will ensure car is reset
+                        next_state.set(GameState::Running);
+                        
                         // Reset camera to far out position (behind and high), then it will smoothly zoom in when activated
                         for (entity, mut look_transform) in camera_query.iter_mut() {
                             look_transform.eye = CAR_START_POSITION + CAMERA_OFFSET_FROM_CAR;
@@ -219,10 +246,6 @@ fn handle_play_again_button(
                             // Re-add activation component so camera needs to be activated again
                             commands.entity(entity).insert(CameraNeedsActivation);
                         }
-                        
-                        // Return to running state AFTER all resets are complete
-                        // This ensures the car is in a good state before game over checks run again
-                        next_state.set(GameState::Running);
                     }
                 }
             }

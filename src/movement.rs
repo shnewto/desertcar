@@ -54,12 +54,16 @@ pub fn apply_movement(
             // Apply forward/backward forces - reduce when in the air
             forces += car_movement.as_lin_vec() * car.thrust * movement_multiplier;
             // Apply turning torques - reduce when in the air
-            torques += car_movement.as_ang_vec() * car.thrust * movement_multiplier;
+            let ang_vec = car_movement.as_ang_vec();
+            torques += ang_vec * car.thrust * movement_multiplier;
         }
 
         let local_to_global = global_transform.affine();
         forces = local_to_global.transform_vector3(forces);
-        torques = local_to_global.transform_vector3(torques);
+        // Torques need to be transformed to world space using the rotation part
+        // Extract rotation from the transform matrix
+        let rotation = global_transform.to_scale_rotation_translation().1;
+        torques = rotation * torques;
 
         let linvel: Vec3 = rb_velocities.linvel;
         
@@ -67,8 +71,9 @@ pub fn apply_movement(
         forces -= linvel * car.drag;
         
         let angvel: Vec3 = rb_velocities.angvel;
-        // Apply normal angular drag
-        torques -= Vec3::new(angvel.x * car.drag.x, angvel.y * car.drag.y * 0.8, angvel.z * car.drag.z);
+        // Apply angular drag - use much lower drag on Y axis (turning) to allow steering
+        let angular_drag = Vec3::new(angvel.x * car.drag.x, angvel.y * car.drag.y * 0.1, angvel.z * car.drag.z);
+        torques -= angular_drag;
 
         rb_forces.force = forces;
         rb_forces.torque = torques;
@@ -76,6 +81,7 @@ pub fn apply_movement(
         car_movements.0.clear();
     }
 }
+
 
 
 pub fn _wrap_movement(mut _form_query: Query<(&Car, &mut Transform)>) {
