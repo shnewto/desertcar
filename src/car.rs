@@ -43,14 +43,14 @@ pub struct StuckTimer {
 }
 
 fn spawn_controls_text(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let controls_text = "drive
---------------------
+    let controls_text = "
+drive
+----------
 ↑ ↓ ← →
 space (boost)
-1 (reset)
 
 look
---------------------
+----------
 w a s d";
 
     let font_handle = asset_server.load("font/NotoSansMono-Bold.ttf");

@@ -8,7 +8,7 @@
 		"KHR_materials_specular",
 		"KHR_materials_ior"
 	],
-	"scene":1,
+	"scene":0,
 	"scenes":[
 		{
 			"name":"CAR",
@@ -49,7 +49,8 @@
 					0.014023175463080406,
 					1
 				],
-				"metallicFactor":0
+				"metallicFactor":0.6978417038917542,
+				"roughnessFactor":0.6618704795837402
 			}
 		},
 		{
@@ -73,12 +74,13 @@
 			"name":"CAR",
 			"pbrMetallicRoughness":{
 				"baseColorFactor":[
-					0.06847820430994034,
-					0.018500210717320442,
-					0.013702087104320526,
+					0.03686627745628357,
+					0,
+					0.06854242831468582,
 					1
 				],
-				"metallicFactor":0
+				"metallicFactor":0.8201438784599304,
+				"roughnessFactor":0.2517985701560974
 			}
 		},
 		{
@@ -106,9 +108,9 @@
 			"name":"HEADLIGHT",
 			"pbrMetallicRoughness":{
 				"baseColorFactor":[
-					0.814846396446228,
+					0.9822445511817932,
 					1,
-					0.5775806307792664,
+					0.4232679307460785,
 					1
 				],
 				"metallicFactor":0,
@@ -231,7 +233,7 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":1238,
+			"count":1622,
 			"max":[
 				3.8164703845977783,
 				0.28786247968673706,
@@ -247,25 +249,25 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":1238,
+			"count":1622,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":1238,
+			"count":1622,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":2286,
+			"count":3030,
 			"type":"SCALAR"
 		},
 		{
 			"bufferView":4,
 			"componentType":5126,
-			"count":114,
+			"count":118,
 			"max":[
 				3.749091625213623,
 				1.688259482383728,
@@ -281,19 +283,19 @@
 		{
 			"bufferView":5,
 			"componentType":5126,
-			"count":114,
+			"count":118,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":6,
 			"componentType":5126,
-			"count":114,
+			"count":118,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":7,
 			"componentType":5123,
-			"count":294,
+			"count":318,
 			"type":"SCALAR"
 		},
 		{
@@ -402,128 +404,128 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":14856,
+			"byteLength":19464,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":14856,
-			"byteOffset":14856,
+			"byteLength":19464,
+			"byteOffset":19464,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":9904,
-			"byteOffset":29712,
+			"byteLength":12976,
+			"byteOffset":38928,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4572,
-			"byteOffset":39616,
+			"byteLength":6060,
+			"byteOffset":51904,
 			"target":34963
 		},
 		{
 			"buffer":0,
-			"byteLength":1368,
-			"byteOffset":44188,
+			"byteLength":1416,
+			"byteOffset":57964,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1368,
-			"byteOffset":45556,
+			"byteLength":1416,
+			"byteOffset":59380,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":912,
-			"byteOffset":46924,
+			"byteLength":944,
+			"byteOffset":60796,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":588,
-			"byteOffset":47836,
+			"byteLength":636,
+			"byteOffset":61740,
 			"target":34963
 		},
 		{
 			"buffer":0,
 			"byteLength":768,
-			"byteOffset":48424,
+			"byteOffset":62376,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":768,
-			"byteOffset":49192,
+			"byteOffset":63144,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":512,
-			"byteOffset":49960,
+			"byteOffset":63912,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":360,
-			"byteOffset":50472,
+			"byteOffset":64424,
 			"target":34963
 		},
 		{
 			"buffer":0,
 			"byteLength":13344,
-			"byteOffset":50832,
+			"byteOffset":64784,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":13344,
-			"byteOffset":64176,
+			"byteOffset":78128,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":8896,
-			"byteOffset":77520,
+			"byteOffset":91472,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":11100,
-			"byteOffset":86416,
+			"byteOffset":100368,
 			"target":34963
 		},
 		{
 			"buffer":0,
 			"byteLength":304176,
-			"byteOffset":97516,
+			"byteOffset":111468,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":304176,
-			"byteOffset":401692,
+			"byteOffset":415644,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":202784,
-			"byteOffset":705868,
+			"byteOffset":719820,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":88800,
-			"byteOffset":908652,
+			"byteOffset":922604,
 			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":997452,
+			"byteLength":1011404,
 			"uri":"desert-car.bin"
 		}
 	]
