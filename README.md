@@ -2,6 +2,9 @@
 
 a car, in a desert
 
+
+![Game Screenshot](screenshot.png)
+
 ## run the game
 
 ```sh
