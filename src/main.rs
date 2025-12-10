@@ -21,6 +21,9 @@ struct DriveScreen;
 #[derive(Component)]
 struct DriveButton;
 
+#[derive(Component)]
+struct SetupInputEntity;
+
 fn main() {
     App::new()
         .insert_resource(PointLightShadowMap { size: 2048 })
@@ -63,12 +66,15 @@ fn main() {
             assets::load,
             theme::load,
             spawn_drive_screen,
+            spawn_setup_input_entity,
         ))
         .add_systems(Update, (
-            handle_drive_button.run_if(in_state(GameState::Setup)),
-        ))
+            handle_drive_button,
+            handle_gamepad_drive_button,
+        ).run_if(in_state(GameState::Setup)))
         .add_systems(OnExit(GameState::Setup), (
             cleanup_drive_screen,
+            cleanup_setup_input_entity,
         ))
         // Running state - spawn scene here, not in Setup
         .add_systems(OnEnter(GameState::Running), (
@@ -154,5 +160,31 @@ fn handle_drive_button(
 fn cleanup_drive_screen(mut commands: Commands, query: Query<Entity, With<DriveScreen>>) {
     for entity in query.iter() {
         commands.entity(entity).despawn();
+    }
+}
+
+fn spawn_setup_input_entity(mut commands: Commands) {
+    // Spawn a temporary entity with input map to handle gamepad input in Setup state
+    commands.spawn((
+        input::default_input_map(),
+        SetupInputEntity,
+    ));
+}
+
+fn cleanup_setup_input_entity(mut commands: Commands, query: Query<Entity, With<SetupInputEntity>>) {
+    for entity in query.iter() {
+        commands.entity(entity).despawn();
+    }
+}
+
+fn handle_gamepad_drive_button(
+    mut next_state: ResMut<NextState<GameState>>,
+    action_state_query: Query<&ActionState<input::CarAction>, With<SetupInputEntity>>,
+) {
+    // Check if PlayAgain action is pressed (A button on Xbox controller)
+    if let Ok(action_state) = action_state_query.single() {
+        if action_state.just_pressed(&input::CarAction::PlayAgain) {
+            next_state.set(GameState::Running);
+        }
     }
 }

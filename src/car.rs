@@ -1,6 +1,7 @@
-use crate::{camera::{look_and_orbit, activate_camera_on_input, CameraNeedsActivation, CAMERA_OFFSET_FROM_CAR}, input::get_car_movement, movement::apply_movement, state::GameState};
+use crate::{camera::{look_and_orbit, activate_camera_on_input, CameraNeedsActivation, CAMERA_OFFSET_FROM_CAR}, input::{get_car_movement, CarAction}, movement::apply_movement, state::GameState};
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::{Velocity, CollidingEntities};
+use leafwing_input_manager::prelude::ActionState;
 use smooth_bevy_cameras::LookTransform;
 
 pub struct CarPlugin;
@@ -21,7 +22,10 @@ impl Plugin for CarPlugin {
                 .run_if(in_state(GameState::Running)),
         )
         .add_systems(OnEnter(GameState::GameOver), (spawn_game_over_screen, zero_car_velocity))
-        .add_systems(Update, handle_play_again_button.run_if(in_state(GameState::GameOver)))
+        .add_systems(Update, (
+            handle_play_again_button,
+            handle_gamepad_play_again,
+        ).run_if(in_state(GameState::GameOver)))
         .add_systems(OnExit(GameState::GameOver), (cleanup_game_over_screen, reset_car_on_exit_game_over));
     }
 }
@@ -255,6 +259,37 @@ fn handle_play_again_button(
 fn cleanup_game_over_screen(mut commands: Commands, query: Query<Entity, With<GameOverScreen>>) {
     for entity in query.iter() {
         commands.entity(entity).despawn();
+    }
+}
+
+fn handle_gamepad_play_again(
+    mut commands: Commands,
+    mut next_state: ResMut<NextState<GameState>>,
+    mut car_query: Query<(&mut Transform, &mut Velocity, &mut StuckTimer), With<Car>>,
+    mut camera_query: Query<(Entity, &mut LookTransform), With<Camera3d>>,
+    action_state_query: Query<&ActionState<CarAction>, With<Car>>,
+) {
+    // Check if PlayAgain action is pressed (A button on Xbox controller)
+    if let Ok(action_state) = action_state_query.single() {
+        if action_state.just_pressed(&CarAction::PlayAgain) {
+            // Same logic as handle_play_again_button when pressed
+            if let Ok((mut transform, mut velocity, mut stuck_timer)) = car_query.single_mut() {
+                transform.translation = CAR_START_POSITION;
+                transform.rotation = Quat::IDENTITY;
+                velocity.linvel = Vec3::ZERO;
+                velocity.angvel = Vec3::ZERO;
+                stuck_timer.stuck_duration = 0.0;
+                stuck_timer.reset_grace_period = 0.5;
+            }
+            
+            next_state.set(GameState::Running);
+            
+            for (entity, mut look_transform) in camera_query.iter_mut() {
+                look_transform.eye = CAR_START_POSITION + CAMERA_OFFSET_FROM_CAR;
+                look_transform.target = CAR_START_POSITION;
+                commands.entity(entity).insert(CameraNeedsActivation);
+            }
+        }
     }
 }
 

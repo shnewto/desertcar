@@ -21,6 +21,8 @@ pub enum CarAction {
     Reset,
     #[actionlike(DualAxis)]
     CameraOrbit, // Left stick for camera control
+    #[actionlike(Button)]
+    PlayAgain, // For game over screen
 }
 
 pub fn get_car_movement(
@@ -96,6 +98,9 @@ pub fn default_input_map() -> InputMap<CarAction> {
     
     // Gamepad left stick for camera control - matching old implementation
     input_map.insert_dual_axis(CameraOrbit, GamepadStick::LEFT);
+    
+    // Play again button - A button on Xbox controller (South button)
+    input_map.insert(PlayAgain, GamepadButton::South);
 
     input_map
 }
