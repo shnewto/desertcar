@@ -45,7 +45,7 @@ else
 fi
 
 # Create output directory
-OUTPUT_DIR="dist"
+OUTPUT_DIR="public"
 mkdir -p "$OUTPUT_DIR"
 
 # Copy assets (including .meta files)
