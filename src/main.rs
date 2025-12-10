@@ -12,7 +12,8 @@ mod lighting;
 mod movement;
 mod scene;
 mod state;
-mod input; 
+mod input;
+mod theme; 
 
 #[derive(Component)]
 struct DriveScreen;
@@ -60,6 +61,7 @@ fn main() {
             spawn_setup_camera,
             lighting::setup,
             assets::load,
+            theme::load,
             spawn_drive_screen,
         ))
         .add_systems(Update, (
@@ -73,6 +75,11 @@ fn main() {
             scene::setup,
             camera::setup,
             car::spawn_controls_text,
+            theme::play,
+            theme::spawn_music_toggle,
+        ))
+        .add_systems(Update, (
+            theme::handle_music_toggle.run_if(in_state(GameState::Running)),
         ))
         .add_plugins(car::CarPlugin)
         // .add_plugins(RapierDebugRenderPlugin::default())

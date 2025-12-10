@@ -94,8 +94,9 @@ else
     echo "WASM file size: $ORIGINAL_SIZE"
 fi
 
-# Copy index.html
-echo "Copying index.html..."
+# Copy sound.js and index.html
+echo "Copying sound.js and index.html..."
+cp sound.js "$OUTPUT_DIR/" 2>/dev/null || true
 cp index.html "$OUTPUT_DIR/"
 # Update the import path in index.html to match the generated file
 if [[ "$OSTYPE" == "darwin"* ]]; then
