@@ -21,10 +21,19 @@ impl Plugin for CarPlugin {
             )
                 .run_if(in_state(GameState::Running)),
         )
-        .add_systems(OnEnter(GameState::GameOver), (spawn_game_over_screen, zero_car_velocity))
+        // Allow camera controls during game over
+        .add_systems(
+            Update,
+            (
+                look_and_orbit,
+            )
+                .run_if(in_state(GameState::GameOver)),
+        )
+        .add_systems(OnEnter(GameState::GameOver), (spawn_game_over_screen, stop_car_momentum))
         .add_systems(Update, (
             handle_play_again_button,
             handle_gamepad_play_again,
+            freeze_car_on_ground,
         ).run_if(in_state(GameState::GameOver)))
         .add_systems(OnExit(GameState::GameOver), (cleanup_game_over_screen, reset_car_on_exit_game_over));
     }
@@ -137,12 +146,38 @@ fn check_game_over(
     }
 }
 
-fn zero_car_velocity(
+fn stop_car_momentum(
     mut car_query: Query<&mut Velocity, With<Car>>,
 ) {
+    // Zero horizontal velocity and angular velocity, but ensure car falls
     if let Ok(mut velocity) = car_query.single_mut() {
-        velocity.linvel = Vec3::ZERO;
-        velocity.angvel = Vec3::ZERO;
+        velocity.linvel.x = 0.0;
+        velocity.linvel.z = 0.0;
+        velocity.angvel = Vec3::ZERO; // Stop spinning
+        // Ensure car falls - if Y velocity is positive (going up) or zero, give it downward velocity
+        if velocity.linvel.y >= 0.0 {
+            velocity.linvel.y = -5.0; // Small downward push to ensure it falls
+        }
+        // If already falling, keep the falling velocity
+    }
+}
+
+fn freeze_car_on_ground(
+    mut car_query: Query<(&mut Velocity, &CollidingEntities), With<Car>>,
+) {
+    // Once car hits the ground (is colliding) and has low velocity, fully freeze it
+    if let Ok((mut velocity, colliding_entities)) = car_query.single_mut() {
+        if !colliding_entities.is_empty() {
+            // Car is on ground - only freeze if velocity is very low (essentially stopped)
+            if velocity.linvel.length() < 1.0 {
+                velocity.linvel = Vec3::ZERO;
+                velocity.angvel = Vec3::ZERO;
+            } else {
+                // Still moving, dampen it gradually
+                velocity.linvel *= 0.9;
+                velocity.angvel *= 0.9;
+            }
+        }
     }
 }
 

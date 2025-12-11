@@ -38,7 +38,7 @@ fn main() {
             })
             .set(WindowPlugin {
             primary_window: Some(Window {
-                title: "desert-car".to_string(),
+                title: "desertcar".to_string(),
                 resolution: WindowResolution::new(1280, 720),
                 // Fifo doesn't work on WASM, use AutoVsync instead
                 present_mode: if cfg!(target_arch = "wasm32") {
