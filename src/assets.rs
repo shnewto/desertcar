@@ -7,5 +7,5 @@ pub struct SceneResource {
 }
 
 pub fn load(asset_server: ResMut<AssetServer>, mut scene_assets: ResMut<SceneResource>) {
-    scene_assets.handle = asset_server.load("gltf/desert-car.gltf");
+    scene_assets.handle = asset_server.load("gltf/desertcar.gltf");
 }

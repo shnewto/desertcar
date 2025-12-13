@@ -52,10 +52,10 @@ mkdir -p "$OUTPUT_DIR"
 echo "Copying assets..."
 cp -r assets "$OUTPUT_DIR/"
 
-# Find the WASM file (package name with hyphens becomes binary with hyphens)
-WASM_FILE="target/wasm32-unknown-unknown/release/desert-car.wasm"
+# Find the WASM file (package name matches binary name)
+WASM_FILE="target/wasm32-unknown-unknown/release/desertcar.wasm"
 if [ "${BUILD_MODE:-release}" = "debug" ]; then
-    WASM_FILE="target/wasm32-unknown-unknown/debug/desert-car.wasm"
+    WASM_FILE="target/wasm32-unknown-unknown/debug/desertcar.wasm"
 fi
 
 if [[ ! -f "$WASM_FILE" ]]; then
@@ -73,17 +73,17 @@ wasm-bindgen \
 
 # Compress WASM file to reduce size (Cloudflare Pages has a 25MB limit)
 echo "Optimizing WASM file..."
-ORIGINAL_SIZE=$(du -h "$OUTPUT_DIR/desert-car_bg.wasm" | cut -f1)
+ORIGINAL_SIZE=$(du -h "$OUTPUT_DIR/desertcar_bg.wasm" | cut -f1)
 if command -v wasm-opt &> /dev/null; then
     # Use size optimization: -Os (balance between size and speed) with additional flags
     # Enable required WASM features for validation
-    wasm-opt -Os --strip-debug --strip-producers --enable-bulk-memory --enable-nontrapping-float-to-int -o "$OUTPUT_DIR/desert-car_bg.wasm.opt" "$OUTPUT_DIR/desert-car_bg.wasm"
-    mv "$OUTPUT_DIR/desert-car_bg.wasm.opt" "$OUTPUT_DIR/desert-car_bg.wasm"
-    OPTIMIZED_SIZE=$(du -h "$OUTPUT_DIR/desert-car_bg.wasm" | cut -f1)
+    wasm-opt -Os --strip-debug --strip-producers --enable-bulk-memory --enable-nontrapping-float-to-int -o "$OUTPUT_DIR/desertcar_bg.wasm.opt" "$OUTPUT_DIR/desertcar_bg.wasm"
+    mv "$OUTPUT_DIR/desertcar_bg.wasm.opt" "$OUTPUT_DIR/desertcar_bg.wasm"
+    OPTIMIZED_SIZE=$(du -h "$OUTPUT_DIR/desertcar_bg.wasm" | cut -f1)
     echo "WASM optimized: $ORIGINAL_SIZE -> $OPTIMIZED_SIZE"
     
     # Check if still too large
-    SIZE_BYTES=$(stat -f%z "$OUTPUT_DIR/desert-car_bg.wasm" 2>/dev/null || stat -c%s "$OUTPUT_DIR/desert-car_bg.wasm" 2>/dev/null)
+    SIZE_BYTES=$(stat -f%z "$OUTPUT_DIR/desertcar_bg.wasm" 2>/dev/null || stat -c%s "$OUTPUT_DIR/desertcar_bg.wasm" 2>/dev/null)
     SIZE_MB=$((SIZE_BYTES / 1024 / 1024))
     if [ "$SIZE_MB" -gt 25 ]; then
         echo "Warning: WASM file is still ${SIZE_MB}MB (limit is 25MB)"
@@ -101,10 +101,10 @@ cp index.html "$OUTPUT_DIR/"
 # Update the import path in index.html to match the generated file
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # macOS sed
-    sed -i '' 's|./target/wasm32-unknown-unknown/release/desert-car.js|./desert-car.js|g' "$OUTPUT_DIR/index.html"
+    sed -i '' 's|./target/wasm32-unknown-unknown/release/desertcar.js|./desertcar.js|g' "$OUTPUT_DIR/index.html"
 else
     # Linux sed
-    sed -i 's|./target/wasm32-unknown-unknown/release/desert-car.js|./desert-car.js|g' "$OUTPUT_DIR/index.html"
+    sed -i 's|./target/wasm32-unknown-unknown/release/desertcar.js|./desertcar.js|g' "$OUTPUT_DIR/index.html"
 fi
 
 # Copy _redirects file if it exists
